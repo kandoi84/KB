@@ -1,0 +1,57 @@
+schema_version: 1.0
+sector: financials_lending
+kpis:
+  - id: system_credit_growth
+    unit: percent_yoy
+    source_priority: [RBI]
+    freshness_class: high_frequency_macro
+  - id: system_deposit_growth
+    unit: percent_yoy
+    source_priority: [RBI]
+    freshness_class: high_frequency_macro
+  - id: credit_deposit_gap
+    unit: percentage_points
+    derived_from: [system_credit_growth, system_deposit_growth]
+  - id: policy_repo_rate
+    unit: percent
+    source_priority: [RBI]
+    freshness_class: rates_yields
+  - id: crr
+    unit: percent
+    source_priority: [RBI]
+  - id: slr
+    unit: percent
+    source_priority: [RBI]
+  - id: overnight_call_rate_range
+    unit: percent
+    source_priority: [RBI, FBIL]
+    freshness_class: rates_yields
+  - id: term_deposit_rate_gt_1y_range
+    unit: percent
+    source_priority: [RBI]
+    freshness_class: rates_yields
+  - id: overnight_mclr_range
+    unit: percent
+    source_priority: [RBI]
+    freshness_class: rates_yields
+  - id: gsec_5y_10y_proxy
+    unit: percent
+    source_priority: [RBI]
+    freshness_class: rates_yields
+  - id: system_gnpa
+    unit: percent
+    source_priority: [RBI_FSR]
+    freshness_class: company_reported_kpi
+  - id: system_crar
+    unit: percent
+    source_priority: [RBI_FSR]
+    freshness_class: company_reported_kpi
+  - id: system_credit_cost
+    unit: percent
+    source_priority: [RBI_FSR]
+  - id: nbfc_system_asset_quality
+    unit: percent
+    source_priority: [RBI_FSR, RBI_supervisory_publication]
+  - id: nbfc_funding_spread
+    unit: basis_points
+    source_priority: [RBI, market_data]

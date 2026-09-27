@@ -1,0 +1,28 @@
+manifest_version: 1.0
+kb_id: sector_financials_lending
+layer: sector
+entity: Financials - Lending
+created_at: 2026-09-27
+source_cutoff: 2026-09-27
+upstream_dependencies:
+  - kb/macro
+primary_sources:
+  - source_id: RBI_CURRENT_RATES_2026-09-24
+    tier: 1
+    status: used
+  - source_id: RBI_FSR_2026-06
+    tier: 1
+    status: identified_pending_detailed_extraction
+files:
+  - STRUCTURE.md
+  - MACRO_TRANSMISSION.md
+  - KPI_SCHEMA.yaml
+  - CURRENT_STATE.md
+  - GAPS.md
+  - SOURCES.md
+freshness_status: PARTIAL
+confidence_grade: B
+publication_status: research_ready_not_final
+next_layer:
+  - industry/banks
+  - industry/nbfc_lending

@@ -1,0 +1,53 @@
+schema_version: 1.0
+layer: macro
+fields:
+  growth:
+    - real_gdp_yoy
+    - nominal_gdp_yoy
+    - real_gva_yoy
+    - private_consumption_yoy
+    - gross_fixed_capital_formation_yoy
+    - industrial_production_yoy
+  inflation:
+    - cpi_yoy
+    - food_inflation_yoy
+    - wpi_yoy
+  monetary_policy:
+    - repo_rate
+    - sdf_rate
+    - msf_rate
+    - crr
+    - slr
+  fiscal:
+    - fiscal_deficit_ytd
+    - fiscal_deficit_pct_budget
+    - central_capex_ytd
+    - central_capex_pct_budget
+  credit:
+    - system_credit_growth
+    - industry_credit_growth
+    - services_credit_growth
+  external:
+    - inr_usd
+    - fx_reserves
+    - trade_balance
+    - current_account_balance
+  commodities:
+    - brent
+    - natural_gas
+    - coal
+  global:
+    - us_10y
+    - fed_policy_rate
+    - global_pmi
+    - global_trade_growth
+metadata_required:
+  - source_id
+  - source_tier
+  - observation_period
+  - release_date
+  - as_of
+  - freshness_status
+  - confidence
+  - claim_type
+missing_value_rule: null_with_gap

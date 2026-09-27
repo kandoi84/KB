@@ -1,0 +1,22 @@
+run_id: MACRO_2026-09-27_001
+layer: macro
+entity: India
+information_cutoff: 2026-09-27T14:00:00+05:30
+status: PARTIAL_PUBLISHABLE
+source_policy: primary_first
+files:
+  - STRUCTURE.md
+  - KPI_SCHEMA.yaml
+  - CURRENT_STATE.md
+  - SOURCES.md
+  - GAPS.md
+quality:
+  primary_sources_used: true
+  secondary_factual_sources_used: false
+  critical_gaps_disclosed: true
+  fabricated_missing_values: false
+next_actions:
+  - ingest_full_august_mpc_resolution
+  - ingest_direct_rbi_sectoral_credit
+  - refresh_market_data_fx_rates_commodities_global_rates
+  - ingest_latest_iip_direct_table
