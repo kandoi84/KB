@@ -260,13 +260,10 @@ def _previous_case(packet, state_dir):
     return digest
 
 
-def open_sandbox_case(packet_path: Path, *, source_request: Path, claim_request: Path,
-                      passage_packet: Path, review_packet: Path, workflow_contract: Path,
-                      claim_review_report: Path, analysis_packet: Path, analysis_report: Path,
-                      project_dir: Path, catalog: Path, state_dir: Path) -> dict:
-    """Freeze one internal hypothesis only after exact parent replay."""
-    packet = _read(packet_path, "case packet")
-    cutoff, opened = _packet(packet)
+def _expected_case(packet, *, source_request, claim_request, passage_packet,
+                   review_packet, workflow_contract, claim_review_report,
+                   analysis_packet, analysis_report, project_dir, catalog, state_dir):
+    _packet(packet)
     _, review, analysis = verify_case_parents(packet, source_request=source_request,
         claim_request=claim_request, passage_packet=passage_packet,
         review_packet=review_packet, workflow_contract=workflow_contract,
@@ -302,6 +299,44 @@ def open_sandbox_case(packet_path: Path, *, source_request: Path, claim_request:
             "publication_allowed": False, "live_decision_allowed": False,
             "promotion_status": "NOT_EVALUATED"}
     body["case_digest"] = _digest(body)
+    return body
+
+
+def verify_frozen_case(case_path: Path, case_packet_path: Path, *,
+                       project_dir: Path, catalog: Path, state_dir: Path,
+                       case_replay_inputs: dict[str, Path]) -> dict:
+    """Rebuild a stored case from original inputs without creating a case."""
+    packet = _read(case_packet_path, "case packet")
+    case_id = _id(packet.get("case_id"), "case_id")
+    expected_path = Path(state_dir) / "cases" / f"{case_id}.json"
+    if (Path(case_path).resolve() != expected_path.resolve()
+            or not expected_path.resolve().is_relative_to(Path(state_dir).resolve())
+            or not expected_path.is_file()):
+        raise ValueError("case path or stored case is invalid")
+    old = _read(expected_path, "frozen case")
+    if set(old) != CASE_FIELDS:
+        raise ValueError("frozen case fields are invalid")
+    if not isinstance(case_replay_inputs, dict) or set(case_replay_inputs) != set(INPUT_NAMES):
+        raise ValueError("case replay inputs are invalid")
+    body = _expected_case(packet, project_dir=project_dir, catalog=catalog,
+                          state_dir=state_dir, **case_replay_inputs)
+    if old != body:
+        raise ValueError("frozen case differs from original packet or parents")
+    return old
+
+
+def open_sandbox_case(packet_path: Path, *, source_request: Path, claim_request: Path,
+                      passage_packet: Path, review_packet: Path, workflow_contract: Path,
+                      claim_review_report: Path, analysis_packet: Path, analysis_report: Path,
+                      project_dir: Path, catalog: Path, state_dir: Path) -> dict:
+    """Freeze one internal hypothesis only after exact parent replay."""
+    packet = _read(packet_path, "case packet")
+    body = _expected_case(packet, source_request=source_request,
+                          claim_request=claim_request, passage_packet=passage_packet,
+                          review_packet=review_packet, workflow_contract=workflow_contract,
+                          claim_review_report=claim_review_report, analysis_packet=analysis_packet,
+                          analysis_report=analysis_report, project_dir=project_dir,
+                          catalog=catalog, state_dir=state_dir)
     path = Path(state_dir) / "cases" / f"{packet['case_id']}.json"
     if not path.resolve().is_relative_to(Path(state_dir).resolve()):
         raise ValueError("case path escapes state root")

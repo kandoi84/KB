@@ -51,12 +51,17 @@ The input packet is strict JSON with `event_id`, `case_id`,
 are timezone-aware analyst declarations; `recorded_at >= observed_at`.
 The case must exist, have a valid digest, and be `SANDBOX_OPEN`. It must
 still say all three safety fields above. Read it from the expected case path;
-do not accept arbitrary parent paths or a rehashed replacement of a case.
+do not accept arbitrary parent paths or a case rewritten without matching
+the supplied original packet and replayed parents.
 The caller supplies the original case packet path and eight input paths.
 Rebuild the expected case from its original case packet and exact eight input
 paths, compare it with the frozen case, then run the 09 parent validator.
 This rechecks input bindings, raw source, review, model, and cutoff. A local
-digest alone does not authenticate a rewritten case.
+digest alone does not authenticate a rewritten case. If an attacker rewrites
+both the case and its caller-supplied packet consistently, this local scheme
+cannot prove the original case or writing time; an independent signed or
+remote append-only anchor is required before any prospective-performance
+claim uses the case as proof of pre-outcome commitment.
 
 `query_metrics(catalog, project_dir, isin, metric_name, period_end,
 observed_at)` must return the exact selected `metric_id` as one unambiguous

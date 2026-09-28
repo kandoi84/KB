@@ -95,6 +95,27 @@ def test_case_opens_only_from_matching_completed_parents(tmp_path):
     assert case_path.read_bytes() == before
 
 
+def test_verify_frozen_case_reconstructs_without_creating(tmp_path):
+    from src.kb_runtime.case_snapshot import verify_frozen_case
+
+    data = _fixture(tmp_path)
+    case_path = data[1] / "cases/case-1.json"
+    kwargs = dict(project_dir=data[0], catalog=data[2], state_dir=data[1],
+                  case_replay_inputs=data[3])
+    with pytest.raises(ValueError, match="case"):
+        verify_frozen_case(case_path, data[4], **kwargs)
+    assert not case_path.exists()
+    opened = _open(data)
+    assert verify_frozen_case(case_path, data[4], **kwargs) == opened
+    forged = {**opened, "hypothesis": "Different analyst judgment after the fact"}
+    forged["case_digest"] = hashlib.sha256(json.dumps(
+        {key: value for key, value in forged.items() if key != "case_digest"},
+        sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+    _write(case_path, forged)
+    with pytest.raises(ValueError, match="case"):
+        verify_frozen_case(case_path, data[4], **kwargs)
+
+
 def test_local_calendar_day_marks_historical_reconstruction(tmp_path):
     data = _fixture(tmp_path)
     packet = data[5]

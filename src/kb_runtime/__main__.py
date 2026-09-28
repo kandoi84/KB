@@ -13,6 +13,7 @@ from .filtered_retrieval import search_chunks
 from .gap_attempt import attempt_gap
 from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
+from .outcome_postmortem import append_outcome_observation, evaluate_due_case
 from .passage_evidence import evaluate_passages
 from .pdf_chunks import extract_pdf_filing, query_pdf_chunks, review_pdf_role
 from .retrieval_eval import evaluate_retrieval
@@ -198,6 +199,18 @@ def main():
     case.add_argument("--catalog", type=Path,
                       default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     case.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    for command, description in (("append-case-outcome", "Append a sourced sandbox outcome"),
+                                 ("evaluate-due-case", "Freeze a due sandbox review")):
+        outcome = subparsers.add_parser(command, help=description)
+        outcome.add_argument("--packet", type=Path, required=True)
+        outcome.add_argument("--case-packet", type=Path, required=True)
+        for name in ("source-request", "claim-request", "passage-packet", "review-packet",
+                     "workflow-contract", "claim-review-report", "analysis-packet", "analysis-report"):
+            outcome.add_argument(f"--{name}", type=Path, required=True)
+        outcome.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+        outcome.add_argument("--catalog", type=Path,
+                             default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+        outcome.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -279,6 +292,15 @@ def main():
                 analysis_packet=args.analysis_packet, analysis_report=args.analysis_report,
                 project_dir=args.project_dir, catalog=args.catalog, state_dir=args.state_dir,
             )
+        elif args.command in {"append-case-outcome", "evaluate-due-case"}:
+            replay_inputs = {name: getattr(args, name) for name in (
+                "source_request", "claim_request", "passage_packet", "review_packet",
+                "workflow_contract", "claim_review_report", "analysis_packet", "analysis_report")}
+            operation = (append_outcome_observation if args.command == "append-case-outcome"
+                         else evaluate_due_case)
+            result = operation(args.packet, case_packet_path=args.case_packet,
+                               case_replay_inputs=replay_inputs, project_dir=args.project_dir,
+                               catalog=args.catalog, state_dir=args.state_dir)
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}

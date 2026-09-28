@@ -22,7 +22,7 @@
 
 ## Review focus
 
-1. A rehashed forged 09 parent must fail event append through replay of the original case inputs (Task 1).
+1. A rehashed forged 09 parent must fail event append when it differs from the supplied original packet or replayed inputs. A coordinated rewrite of the case and caller-supplied packet is outside the proof of this local contract (Task 1).
 2. A metric revision filed after `observed_at` must not change the earlier observation or be selected during retry (Task 1).
 3. Two metrics matching name/period but differing scope must require an explicit selected `metric_id`, with no silent fallback (Task 1).
 4. A due receipt with no sourced actual or no human review must stay pending, never enter a quadrant (Task 2).
@@ -39,7 +39,7 @@
 - [ ] Write a failing synthetic integration test that opens a real 09 sandbox case, registers a reviewed reported metric for the future outcome period, appends an observation, and checks exact citation, decimal, source raw hash, cutoff, and three safety flags.
 - [ ] Run `python3 -m pytest -q tests/test_outcome_postmortem.py`; confirm the intended failure.
 - [ ] Implement strict packet parsing, expected-root/safe-ID parent lookup, exact frozen case equality plus 09 parent replay, exact metric-ID selection via `query_metrics`, series/period/ISIN/unit match, availability checks, and atomic link-once JSON with canonical digest. Recompute and compare on retry.
-- [ ] Add tests for forged but rehashed case/parent, ambiguous series, guidance actual, rights failure, wrong metric identity/unit/period, source-byte damage, late observation, future revision, conflicting retry, and two concurrent writers. Rerun focused tests.
+- [ ] Add tests for a rehashed case changed without its supplied packet, damaged parents, ambiguous series, guidance actual, rights failure, wrong metric identity/unit/period, source-byte damage, late observation, future revision, conflicting retry, and two concurrent writers. Rerun focused tests.
 
 ### Task 2: Due postmortem and eval candidate
 

@@ -325,8 +325,49 @@ analyst hypothesis and the fair value remains an unverified estimate. A
 case opened after its cutoff day is marked `HISTORICAL_RECONSTRUCTION`.
 An optional prior-case link checks the local receipt structure and digest;
 it does not independently prove when the earlier case was written.
-The case has no score, price, trade, or publication permission. Outcomes,
-historical performance, and any live decision gate remain pending.
+The case has no score, price, trade, or publication permission. The local
+case packet and all eight inputs must remain available for later replay; a
+case digest alone does not independently prove the packet's original writing
+time. Historical performance and any live decision gate remain pending.
+
+## Record a sandbox outcome and review it when due
+
+Register a reviewed `REPORTED` metric first. An outcome packet names
+`event_id`, `case_id`, `case_digest`, `event_type: OUTCOME_OBSERVED`,
+`metric_id`, `observed_at`, and `recorded_at`. A due packet names
+`postmortem_id`, `case_id`, `case_digest`, `evaluated_at`, an optional
+`observation_event_id`, and an optional human `process_review`. Exact
+synthetic packet examples are in `tests/test_outcome_postmortem.py`.
+
+Both commands require `--packet`, `--case-packet`, `--project-dir`,
+`--catalog`, `--state-dir`, and the eight `open-sandbox-case` input paths
+shown above. For example:
+
+```sh
+python3 -m src.kb_runtime append-case-outcome \
+  --packet path/to/outcome.json --case-packet path/to/case.json \
+  --source-request path/to/sources.json \
+  --claim-request path/to/claims.json \
+  --passage-packet path/to/passages.json \
+  --review-packet path/to/review.json \
+  --workflow-contract projects/indian-equities/config/runtime_contracts/evidence_review.v1.json \
+  --claim-review-report projects/indian-equities/state/claim_review_runs/flow-001.json \
+  --analysis-packet path/to/analysis.json \
+  --analysis-report projects/indian-equities/state/analysis_runs/analysis-001.json \
+  --project-dir projects/indian-equities \
+  --catalog projects/indian-equities/data/registry/identity.sqlite \
+  --state-dir projects/indian-equities/state
+```
+
+For the due review, change the command to `evaluate-due-case` and the
+`--packet` path to the postmortem packet; pass the same case packet and eight
+input paths.
+
+The first command freezes a sourced metric observation. The second waits
+until the case target is due, compares the reported actual with the target,
+and records a separate human judgment of process quality. Missing actual or
+review stays pending. A reproducible bad process can create an unreviewed
+evaluation candidate; it cannot change the old case or publish research.
 
 ## Register issuer and traded-security identity
 
