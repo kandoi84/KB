@@ -37,12 +37,12 @@ completed implementation or evaluation.
    add calculation and assumption lineage, passage checks, conflicts, and a
    controlled way to resolve gaps. A gap cannot be silently filled with
    narrative.
-4. **Refresh orchestration.** Compare two frozen source reports and determine
-   which claims and derived views need rechecking. Run only the affected
-   steps; persist a manifest and retry state. Accept when a source update
-   triggers a new evaluation, preserves the old one, and blocks downstream
-   publication on unresolved gaps. Fetch adapters come later and must obey
-   source rights and the free first catalog.
+4. **Refresh orchestration — evidence checks active, analysis still missing.**
+   `refresh-evidence` now runs source and claim checks, compares with a prior
+   run, preserves both reports, and records open gaps in a manifest. Next,
+   connect claim dependencies to derived views and run only affected analysis
+   steps. Publication remains blocked on unresolved gaps. Fetch adapters come
+   later and must obey source rights and the free first catalog.
 5. **Research integrity gate.** Validate claim type, passage, cutoff, source
    rights, contradictions, calculations, score inputs, and provenance before
    any real research can publish. Keep the existing real publication block

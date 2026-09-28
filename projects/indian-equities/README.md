@@ -127,3 +127,28 @@ bytes and lists an open gap for every claim. A linked source still has
 supports the statement. Derived and inferred claims need later calculation
 or judgment checks. `CLAIMS_BLOCKED` is expected; this command does not
 authorize real research publication.
+
+## Run a repeatable evidence refresh
+
+Use matching entity and cutoff values in the source and claim requests:
+
+```sh
+python3 -m src.kb_runtime refresh-evidence \
+  --source-request path/to/refresh-request.json \
+  --claims path/to/claims.json --run-id sbi-evidence-001
+```
+
+After new source data arrives, use a new run ID and name the earlier run:
+
+```sh
+python3 -m src.kb_runtime refresh-evidence \
+  --source-request path/to/new-refresh-request.json \
+  --claims path/to/claims.json --run-id sbi-evidence-002 \
+  --previous-run-id sbi-evidence-001
+```
+
+The command runs both checks, saves their frozen reports, and writes an
+evidence manifest under ignored `state/evidence_runs/`. It lists source
+version changes, claims to recheck, and open gaps. Repeating an unchanged
+run ID resumes the same result. `publication_allowed` stays false because
+passage, conflict, calculation, and rights checks are not yet complete.

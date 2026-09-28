@@ -153,7 +153,7 @@ def _gap(claim_result, run_id):
     }
 
 
-def _read_frozen(path, request_hash, source_report_id):
+def _read_frozen(path, request_hash=None, source_report_id=None):
     try:
         report = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(report, dict):
@@ -164,9 +164,15 @@ def _read_frozen(path, request_hash, source_report_id):
     if report_id != _hash_json(report):
         raise ValueError("existing claim report differs from its digest")
     report["report_id"] = report_id
-    if report.get("request_hash") != request_hash or report.get("source_report_id") != source_report_id:
+    if ((request_hash is not None and report.get("request_hash") != request_hash)
+            or (source_report_id is not None and report.get("source_report_id") != source_report_id)):
         raise ValueError("run_id cannot be reused with changed inputs")
     return report
+
+
+def load_claim_report(path: Path) -> dict:
+    """Read an intact frozen claim report for refresh comparisons."""
+    return _read_frozen(Path(path))
 
 
 def evaluate_claims(claims_path: Path, source_report_path: Path, project_dir: Path,
