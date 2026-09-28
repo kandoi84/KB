@@ -60,6 +60,11 @@ owned by another session.
 | 02 | Claim lineage and gap ledger | Active, meaning open | Typed claims pin source version and raw hash; every claim has an open gap. |
 | 03 | Repeatable evidence refresh | Active | A run compares prior frozen reports, identifies affected claims, and cannot reuse an ID with changed inputs. |
 | 04 | Passage evidence packet | Active, meaning open | A supplied verbatim quote is checked against the exact raw version when text is supported. Unsupported or absent text stays open. Presence never means semantic approval. |
+| 04A | Issuer and security identity | Planned | Company research uses issuer ID; listed security uses ISIN. Exchange symbols are dated aliases and ambiguous matches block. Existing source versions remain readable. |
+| 04B | Point-in-time typed metrics | Planned | Reported and guidance revisions bind ISIN, metric, period end, published and first-seen times, source version, and unit. Cutoff queries never see later revisions; other value kinds need distinct origin contracts. |
+| 04C | Filing and transcript extraction | Planned | Versioned parser produces cited chunks with document type, quarter, page/offset and speaker role when known. Failed extraction stays blocked; derived context never alters raw evidence. |
+| 04D | Filtered retrieval | Planned | Retrieval filters by issuer/security, document type and cutoff; returns immutable chunk IDs. Typed metrics are the authority for numeric answers. |
+| 04E | Retrieval and answer evals | Planned | A 30–50 question gold set includes answerable, missing, revised, contradictory and future-cutoff cases. Parser/index changes run recall, citation and abstention checks. |
 | 05 | Claim integrity review | Planned | Review decisions bind claim, quote, source version, reviewer, and cutoff; rights, contradictions, calculation lineage, and assumption labels each have explicit blocked results. No silent gap closure. |
 | 06 | Dependency and skill contracts | Planned | A workflow DAG names required inputs and outputs, loads the selected skill contract, records execution, retries safe failures, and blocks dependents. A YAML file alone is not activation. |
 | 07 | Gap resolution | Planned | Only classified public primary gaps may trigger permitted source adapters. Attempts and reasons are frozen; internal or proprietary gaps remain human work. No narrative fill. |
@@ -85,8 +90,9 @@ owned by another session.
 
 ## Execution order
 
-Build 04 and 05, activate dependency and skill contracts in 06, then add
-audited gap adapters in 07. Add 08 only after those inputs are controlled.
+Build 04 and the 04A–04E storage and retrieval path, then 05. Activate
+dependency and skill contracts in 06, then add audited gap adapters in 07.
+Add 08 only after those inputs are controlled.
 Wire 09 only after the evidence and analysis validators
 exist. Then build 10–12. Add 13 only for observed data gaps and credible
 calibration samples. Each mini spec gets a separate design and implementation

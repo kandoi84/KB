@@ -1,5 +1,12 @@
 # Evaluation Plan
 
+This plan evaluates investment decisions. Retrieval and answer quality need
+a separate 30–50 question gold set before document search is promoted. That
+set must test cited evidence, no-answer cases, wrong-issuer distractors,
+revised filings, and future-cutoff leakage. See
+`docs/superpowers/specs/2026-09-28-structured-kb-extension.md` for its
+proposed format and gates; no retrieval score is active yet.
+
 ## Objective
 Determine whether the framework ranks future excess-return opportunities better than simple baselines.
 
