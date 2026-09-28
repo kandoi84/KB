@@ -1,11 +1,12 @@
 """Independent labels bind to exact frozen gap attempts."""
 
 import json
+import hashlib
 from datetime import datetime, timezone
 
 import pytest
 
-from src.kb_runtime.claim_lineage import evaluate_claims
+from src.kb_runtime.claim_lineage import evaluate_claims, _hash_json
 from src.kb_runtime.gap_attempt import attempt_gap
 from src.kb_runtime.source_refresh import evaluate_sources
 from src.kb_runtime.trust_observation import record_trust_observation
@@ -97,6 +98,15 @@ def test_independent_observation_is_frozen_and_binds_attempt(tmp_path):
     assert receipt["attempt_id"] == "attempt-one"
     assert receipt["attempt_result_id"] == data[3]["result_id"]
     assert receipt["origin"] == "SYNTHETIC_FIXTURE"
+    assert receipt["adapter_version"] == data[3]["adapter_version"]
+    assert receipt["attempted_at"] == data[3]["attempted_at"]
+    assert receipt["rights_reference_hash"] == hashlib.sha256(
+        data[3]["rights_evidence_ref"].encode()).hexdigest()
+    packet = json.loads(data[0].read_text())
+    assert receipt["rights_policy_hash"] == _hash_json({
+        key: packet[key] for key in (
+            "rights_use", "rights_evidence_ref", "rights_scope_actor",
+            "rights_scope_method", "rights_scope_storage", "rights_scope_purpose")})
     assert receipt["publication_allowed"] is False
     assert call(data) == receipt
 

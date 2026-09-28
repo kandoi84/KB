@@ -1,6 +1,7 @@
 """Bind an independent trust label to one frozen gap attempt."""
 
 import re
+import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -125,6 +126,13 @@ def record_trust_observation(observation_path: Path, classification_packet_path:
         "rubric_version": observation["rubric_version"],
         "entity": packet["entity"], "source_id": result["source_id"],
         "adapter_id": result["adapter_id"],
+        "adapter_version": result["adapter_version"],
+        "rights_reference_hash": hashlib.sha256(
+            result["rights_evidence_ref"].encode("utf-8")).hexdigest(),
+        "rights_policy_hash": _hash_json({key: packet[key] for key in (
+            "rights_use", "rights_evidence_ref", "rights_scope_actor",
+            "rights_scope_method", "rights_scope_storage", "rights_scope_purpose")}),
+        "attempted_at": intent["attempted_at"],
         "source_authority": observation["source_authority"],
         "document_type": observation["document_type"],
         "reporting_period": observation["reporting_period"],
