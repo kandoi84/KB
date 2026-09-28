@@ -1,0 +1,11 @@
+{
+  "skill_id": "evidence_refresh",
+  "version": 1,
+  "handler": "refresh_evidence",
+  "required_inputs": ["source_request", "claim_request"],
+  "output_type": "evidence_manifest",
+  "entity_policy": "EXACT_RUN_ENTITY",
+  "cutoff_policy": "EXACT_RUN_CUTOFF",
+  "retry_policy": "REPLAY_IDEMPOTENT",
+  "publication_allowed": false
+}

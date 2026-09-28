@@ -6,6 +6,7 @@ from pathlib import Path
 from .claim_lineage import evaluate_claims
 from .claim_review import review_claims
 from .evidence_refresh import refresh_evidence
+from .evidence_workflow import run_evidence_workflow
 from .filtered_retrieval import search_chunks
 from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
@@ -155,6 +156,17 @@ def main():
         default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
     )
     evidence.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    workflow = subparsers.add_parser("run-evidence-workflow", help="Run pinned evidence skills, then resume after human review")
+    workflow.add_argument("--source-request", type=Path, required=True)
+    workflow.add_argument("--claims", type=Path, required=True)
+    workflow.add_argument("--passage-packet", type=Path, required=True)
+    workflow.add_argument("--review-packet", type=Path)
+    workflow.add_argument("--contract", type=Path, required=True)
+    workflow.add_argument("--run-id", required=True)
+    workflow.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    workflow.add_argument("--catalog", type=Path,
+                          default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    workflow.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -212,6 +224,11 @@ def main():
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,
                 args.run_id, args.previous_run_id,
+            )
+        elif args.command == "run-evidence-workflow":
+            result = run_evidence_workflow(
+                args.source_request, args.claims, args.passage_packet, args.review_packet,
+                args.contract, args.project_dir, args.catalog, args.state_dir, args.run_id,
             )
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)

@@ -210,6 +210,31 @@ Local hashes are integrity checks, not signed proof against someone who can
 rewrite the whole local report chain.
 `publication_allowed` remains false for real companies.
 
+## Run the pinned evidence workflow
+
+The versioned contract at `config/runtime_contracts/evidence_review.v1.json`
+loads three pinned skill contracts and runs source refresh, passage presence,
+and claim review in dependency order. First run without a review packet:
+
+```sh
+python3 -m src.kb_runtime run-evidence-workflow \
+  --source-request path/to/source-request.json \
+  --claims path/to/claims.json \
+  --passage-packet path/to/passages.json \
+  --contract projects/indian-equities/config/runtime_contracts/evidence_review.v1.json \
+  --run-id evidence-001
+```
+
+The trace pauses at `AWAITING_REVIEW`. Read its frozen claim and passage
+reports, then prepare the human review packet described above with their exact
+IDs. Resume with the same arguments and run ID plus
+`--review-packet path/to/review.json`. The runner binds the packet to this run,
+checks each parent and source again, and records the selected skill path,
+digest, handler, and output ID. A changed input or contract under that run ID
+fails. The old `Agents/*/contract.yaml` files remain design references; they
+are not callable skills. This workflow grants no publication permission and
+does not execute analysis, case opening, or learning stages.
+
 ## Register issuer and traded-security identity
 
 After storing a reviewed exchange security file with `record-source`, make an

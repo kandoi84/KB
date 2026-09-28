@@ -1,0 +1,31 @@
+{
+  "contract_id": "indian_equities_evidence_review",
+  "version": 1,
+  "workflow_id": "evidence_review_v1",
+  "stages": [
+    {
+      "stage_id": "refresh",
+      "skill_contract_path": "evidence_refresh.v1.json",
+      "skill_contract_sha256": "6889f69d47297f3f425ef7879828946ed5d3df8a69b925c0235d7bf022416890",
+      "depends_on": []
+    },
+    {
+      "stage_id": "passages",
+      "skill_contract_path": "passage_presence.v1.json",
+      "skill_contract_sha256": "e6e7fe42d67cca6da1fa3df5e83831bde8d82f839a2d1e4f36d81782db476bab",
+      "depends_on": [
+        "refresh"
+      ]
+    },
+    {
+      "stage_id": "review",
+      "skill_contract_path": "claim_integrity_review.v1.json",
+      "skill_contract_sha256": "8d59cbf21d3343aeac8e9d44305c67d962b6aac087a485f214c518e8e2d4387e",
+      "depends_on": [
+        "refresh",
+        "passages"
+      ]
+    }
+  ],
+  "publication_allowed": false
+}
