@@ -32,13 +32,13 @@
 
 ### Task 1: Append a sourced observation
 
-**Files:** Create `src/kb_runtime/outcome_postmortem.py` and `tests/test_outcome_postmortem.py`. If 09 lacks a reusable parent replay function, expose its existing validation as a narrow public helper in `src/kb_runtime/case_snapshot.py` with matching 09 tests; do not copy its checks.
+**Files:** Create `src/kb_runtime/outcome_postmortem.py` and `tests/test_outcome_postmortem.py`. Reuse 09's `open_sandbox_case` and `verify_case_parents`; expose a narrow frozen-case replay helper in `case_snapshot.py` with 09 tests if the case equality check cannot be done cleanly through the public entry point. Do not copy the 09 validators.
 
 **Interface:** `append_outcome_observation(packet_path: Path, *, project_dir: Path, catalog: Path, state_dir: Path, case_replay_inputs: Mapping[str, Path]) -> dict`. The packet uses the exact observation fields in the spec. `case_replay_inputs` supplies the eight 09 input paths for replay verification. Return the frozen event.
 
 - [ ] Write a failing synthetic integration test that opens a real 09 sandbox case, registers a reviewed reported metric for the future outcome period, appends an observation, and checks exact citation, decimal, source raw hash, cutoff, and three safety flags.
 - [ ] Run `python3 -m pytest -q tests/test_outcome_postmortem.py`; confirm the intended failure.
-- [ ] Implement strict packet parsing, expected-root/safe-ID parent lookup, 09 replay verification, exact metric-ID selection via `query_metrics`, series/period/ISIN match, availability checks, and atomic link-once JSON with canonical digest. Recompute and compare on retry.
+- [ ] Implement strict packet parsing, expected-root/safe-ID parent lookup, exact frozen case equality plus 09 parent replay, exact metric-ID selection via `query_metrics`, series/period/ISIN/unit match, availability checks, and atomic link-once JSON with canonical digest. Recompute and compare on retry.
 - [ ] Add tests for forged but rehashed case/parent, ambiguous series, guidance actual, rights failure, wrong metric identity/unit/period, source-byte damage, late observation, future revision, conflicting retry, and two concurrent writers. Rerun focused tests.
 
 ### Task 2: Due postmortem and eval candidate
@@ -49,7 +49,7 @@
 
 - [ ] Write failing tests for a due event before deadline, missing observation, missing review, each of four process/result quadrants, and decimal boundaries under both case comparators. Confirm process status comes only from the review packet.
 - [ ] Run the focused test and confirm intended failures.
-- [ ] Implement due validation, case/event replay and digest checks, result comparison with `Decimal`, human review fields/taxonomy, frozen postmortem, and two-phase retry-safe eval candidate publication. Define a completed status only after every required artifact verifies.
+- [ ] Implement due validation against `case.prediction.due_at`, case/event replay and digest checks, result comparison with `Decimal`, human review fields/taxonomy, and frozen postmortem. The postmortem itself is the due-event receipt; omit a separate `due_event_id`. For a candidate, precompute both bodies, verify any existing same-ID receipts, link the candidate first and postmortem second, then verify both before returning complete. A retry finishes an intact candidate-only state and rejects a postmortem with a missing candidate.
 - [ ] Add tests for reviewer-time/look-ahead errors, `NONE`/`UNAVOIDABLE_SURPRISE` constraints, reproducible failure invariant, luck no-change control, changed same-ID review, damaged event, missing candidate on retry, and exact outcome exclusion from candidate decision inputs. Rerun focused tests.
 
 ### Task 3: CLI and user contract

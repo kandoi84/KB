@@ -51,11 +51,11 @@ The input packet is strict JSON with `event_id`, `case_id`,
 are timezone-aware analyst declarations; `recorded_at >= observed_at`.
 The case must exist, have a valid digest, and be `SANDBOX_OPEN`. It must
 still say all three safety fields above. Read it from the expected case path;
-do not accept arbitrary parent paths or a rehashed replacement of a case
-whose 09 inputs no longer replay. The 09 parent validator must recheck its
-exact input bindings, raw source, review, model, and cutoff before an outcome
-is appended. If 09 cannot expose this replay verification, add it there as a
-prerequisite rather than trusting the case digest alone.
+do not accept arbitrary parent paths or a rehashed replacement of a case.
+Rebuild the expected case from its original case packet and exact eight input
+paths, compare it with the frozen case, then run the 09 parent validator.
+This rechecks input bindings, raw source, review, model, and cutoff. A local
+digest alone does not authenticate a rewritten case.
 
 `query_metrics(catalog, project_dir, isin, metric_name, period_end,
 observed_at)` must return the exact selected `metric_id` as one unambiguous
@@ -82,10 +82,10 @@ cannot count as a prospective forecast in 12.
 ## Due evaluation and human process review
 
 The due command receives a strict packet with `postmortem_id`, `case_id`,
-`case_digest`, `due_event_id`, `evaluated_at`, optional
+`case_digest`, `evaluated_at`, optional
 `observation_event_id`, and an optional process review object. It requires
-`evaluated_at >= case.outcome.due_at`; before then it fails. The due event
-and postmortem are idempotent immutable receipts, not a scheduler promise.
+`evaluated_at >= case.prediction.due_at`; before then it fails. The
+postmortem is the idempotent due-event receipt, not a scheduler promise.
 If no qualifying observed metric exists, the postmortem is
 `AWAITING_OBSERVATION`; no result or process/result quadrant is invented.
 If an observation exists but no completed human review exists, it is
@@ -134,6 +134,14 @@ without a forced eval or framework change. Mini spec 11 may review a
 candidate; 12 may test it. This candidate is not a passing benchmark.
 
 ## Failure and acceptance
+
+When a completed postmortem needs an eval candidate, compute both bodies
+and digests before writing. Verify any existing same-ID postmortem and
+candidate against those bodies, link the candidate first, and then link the
+postmortem. On retry, an intact candidate with no postmortem is completed;
+a postmortem that requires a missing or mismatched candidate is rejected.
+Only return a completed postmortem after both exact receipts exist. A pending
+postmortem has no candidate and uses one link-once write.
 
 Fail closed on unknown fields, unsafe IDs or paths, damaged case/parent,
 changed same-ID payload, missing/ambiguous metric, mismatch in metric
