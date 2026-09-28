@@ -435,6 +435,68 @@ and records a separate human judgment of process quality. Missing actual or
 review stays pending. A reproducible bad process can create an unreviewed
 evaluation candidate; it cannot change the old case or publish research.
 
+## Propose and review a methodology change
+
+Mini-spec 11 stores proposed prompt, weight, schema, or rule artifacts and
+their baseline bytes under content hashes. A proposal packet has
+`proposal_id`, `change_type`, `baseline_version`, `candidate_version`,
+`author_id`, `created_at`, `changed_contract_paths`, `rationale`, and
+`eval_candidate_ids`. Versions must be pinned and the artifact bytes must
+differ. If an eval candidate is linked, provide its exact due packet and the
+same case packet and eight replay inputs used for the due review:
+
+```sh
+python3 -m src.kb_runtime register-change-proposal \
+  --packet path/to/proposal.json \
+  --baseline-artifact projects/indian-equities/config/baseline.txt \
+  --candidate-artifact projects/indian-equities/config/candidate.txt \
+  --due-packet post-001=path/to/due.json \
+  --case-packet path/to/case.json \
+  --source-request path/to/sources.json \
+  --claim-request path/to/claims.json \
+  --passage-packet path/to/passages.json \
+  --review-packet path/to/review.json \
+  --workflow-contract projects/indian-equities/config/runtime_contracts/evidence_review.v1.json \
+  --claim-review-report projects/indian-equities/state/claim_review_runs/flow-001.json \
+  --analysis-packet path/to/analysis.json \
+  --analysis-report projects/indian-equities/state/analysis_runs/analysis-001.json \
+  --project-dir projects/indian-equities \
+  --catalog projects/indian-equities/data/registry/identity.sqlite \
+  --state-dir projects/indian-equities/state
+```
+
+Omit `--due-packet`, `--case-packet`, and the eight replay paths for a
+proposal without an eval candidate. A regression packet pins the proposal
+ID and digest, manifest path and SHA-256, runner ID/version/source SHA-256,
+and both artifact SHA-256 values. Its manifest has at least 20 distinct
+frozen cases, dataset and rubric versions, and non-weakening thresholds.
+See `tests/test_change_regression.py` for the exact packet shape. Run:
+
+```sh
+python3 -m src.kb_runtime run-change-regression \
+  --packet path/to/regression-run.json \
+  --project-dir projects/indian-equities \
+  --state-dir projects/indian-equities/state
+```
+
+The CLI has no trusted production executor. It records
+`BLOCKED_NO_EXECUTOR`; synthetic Python tests can show `MECHANICS_PASS`
+but cannot authorize adoption. A decision packet pins `approval_id`,
+proposal and regression IDs/digests, both artifact SHA-256 values,
+`reviewer_id`, `decided_at`, `decision`, `scope`, and a rationale. Run:
+
+```sh
+python3 -m src.kb_runtime record-change-approval \
+  --packet path/to/approval.json \
+  --state-dir projects/indian-equities/state
+```
+
+An exact `REJECTED` decision is stored immutably. `APPROVED` remains
+blocked until a separately trusted real regression gate exists. Receipt
+digests are local consistency checks, not independent proof of who ran or
+reviewed a change. There is no activation command; the active version and
+research publication gate remain unchanged.
+
 ## Register issuer and traded-security identity
 
 After storing a reviewed exchange security file with `record-source`, make an

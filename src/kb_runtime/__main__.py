@@ -5,6 +5,9 @@ from pathlib import Path
 
 from .analysis_judgment import analyze_judgment
 from .case_snapshot import open_sandbox_case
+from .change_approval import record_change_approval
+from .change_proposal import register_change_proposal
+from .change_regression import run_change_regression
 from .claim_lineage import evaluate_claims
 from .claim_review import review_claims
 from .evidence_refresh import refresh_evidence
@@ -234,6 +237,26 @@ def main():
         outcome.add_argument("--catalog", type=Path,
                              default=Path("projects/indian-equities/data/registry/identity.sqlite"))
         outcome.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    proposal = subparsers.add_parser("register-change-proposal", help="Freeze a data-only methodology proposal")
+    proposal.add_argument("--packet", type=Path, required=True)
+    proposal.add_argument("--baseline-artifact", type=Path, required=True)
+    proposal.add_argument("--candidate-artifact", type=Path, required=True)
+    proposal.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    proposal.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    proposal.add_argument("--catalog", type=Path,
+                          default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    proposal.add_argument("--case-packet", type=Path)
+    proposal.add_argument("--due-packet", action="append", default=[], metavar="ID=PATH")
+    for name in ("source-request", "claim-request", "passage-packet", "review-packet",
+                 "workflow-contract", "claim-review-report", "analysis-packet", "analysis-report"):
+        proposal.add_argument(f"--{name}", type=Path)
+    regression = subparsers.add_parser("run-change-regression", help="Record a blocked or paired regression")
+    regression.add_argument("--packet", type=Path, required=True)
+    regression.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    regression.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    approval = subparsers.add_parser("record-change-approval", help="Record a human change decision")
+    approval.add_argument("--packet", type=Path, required=True)
+    approval.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -340,6 +363,29 @@ def main():
             result = operation(args.packet, case_packet_path=args.case_packet,
                                case_replay_inputs=replay_inputs, project_dir=args.project_dir,
                                catalog=args.catalog, state_dir=args.state_dir)
+        elif args.command == "register-change-proposal":
+            replay_inputs = {"project_dir": args.project_dir, "catalog": args.catalog}
+            if args.case_packet is not None:
+                replay_inputs["case_packet_path"] = args.case_packet
+            for name in ("source_request", "claim_request", "passage_packet", "review_packet",
+                         "workflow_contract", "claim_review_report", "analysis_packet", "analysis_report"):
+                value = getattr(args, name)
+                if value is not None:
+                    replay_inputs[name] = value
+            for item in args.due_packet:
+                identifier, separator, path = item.partition("=")
+                if not separator or not identifier or not path or f"due_packet:{identifier}" in replay_inputs:
+                    raise ValueError("due packet must be unique ID=PATH")
+                replay_inputs[f"due_packet:{identifier}"] = Path(path)
+            result = register_change_proposal(
+                args.packet, baseline_artifact=args.baseline_artifact,
+                candidate_artifact=args.candidate_artifact, state_dir=args.state_dir,
+                case_replay_inputs=replay_inputs)
+        elif args.command == "run-change-regression":
+            result = run_change_regression(args.packet, state_dir=args.state_dir,
+                                           project_dir=args.project_dir, adapter_registry={})
+        elif args.command == "record-change-approval":
+            result = record_change_approval(args.packet, state_dir=args.state_dir)
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}
