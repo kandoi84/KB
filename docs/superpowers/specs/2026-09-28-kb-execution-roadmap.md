@@ -13,7 +13,8 @@ completed implementation or evaluation.
 | --- | --- | --- |
 | Immutable source updates | Active for local files | `record-source` stores raw hashes and version records |
 | Source freshness at a cutoff | Active for explicit requests | `evaluate-sources` freezes a report per run ID |
-| Claim to passage lineage | Specification only | Claim maps are empty; no passage validator runs |
+| Claim to source version lineage | Active for supplied claims | `evaluate-claims` pins raw evidence and freezes open gaps |
+| Passage meaning validation | Missing | A locator does not prove that a statement follows from the passage |
 | Research workflow | Synthetic execution only | `company-research` persists steps and rejects real inputs |
 | Case Book creation | Synthetic execution only | A test run opens a frozen inception case |
 | Outcome observation and postmortems | Missing | No runtime trigger or outcome adapter |
@@ -30,13 +31,12 @@ completed implementation or evaluation.
    cutoff and maximum source ages. The report pins version IDs and says why
    any source is blocked. A new run ID is required after an update. This is
    source readiness only.
-3. **Claim contract and gap ledger.** Define one typed claim record with exact
-   source version, passage locator, date, and calculation or assumption
-   lineage. Check links and mark unverified passages plainly. Turn missing,
-   conflicting, or stale evidence into structured gaps with resolution type,
-   preferred source, attempt time, and unresolved reason. Accept only when a
-   test claim can be traced to immutable raw evidence and a gap cannot be
-   silently filled with narrative.
+3. **Claim contract and gap ledger — source links active, review still open.**
+   Supplied typed claims now pin a source version, locator, and date. Each
+   evaluation freezes open gaps and marks passage meaning unverified. Next,
+   add calculation and assumption lineage, passage checks, conflicts, and a
+   controlled way to resolve gaps. A gap cannot be silently filled with
+   narrative.
 4. **Refresh orchestration.** Compare two frozen source reports and determine
    which claims and derived views need rechecking. Run only the affected
    steps; persist a manifest and retry state. Accept when a source update

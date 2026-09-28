@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 
+from .claim_lineage import evaluate_claims
 from .source_refresh import evaluate_sources
 from .source_store import record_source
 from .workflow import run_company_research
@@ -32,12 +33,25 @@ def main():
         default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
     )
     refresh.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    claims = subparsers.add_parser("evaluate-claims", help="Freeze claim lineage and open gaps")
+    claims.add_argument("--claims", type=Path, required=True)
+    claims.add_argument("--source-report", type=Path, required=True)
+    claims.add_argument("--run-id", required=True)
+    claims.add_argument(
+        "--project-dir", type=Path,
+        default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
+    )
+    claims.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
             result = record_source(args.metadata, args.raw_file, args.project_dir)
         elif args.command == "evaluate-sources":
             result = evaluate_sources(args.request, args.project_dir, args.state_dir, args.run_id)
+        elif args.command == "evaluate-claims":
+            result = evaluate_claims(
+                args.claims, args.source_report, args.project_dir, args.state_dir, args.run_id
+            )
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}

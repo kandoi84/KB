@@ -107,7 +107,7 @@ def _source_status(target, project_dir, cutoff):
     return {**result, "status": "CURRENT", "reason": "source is available at cutoff"}
 
 
-def _read_report(path, request_hash):
+def _read_report(path, request_hash=None):
     try:
         report = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(report, dict):
@@ -118,9 +118,14 @@ def _read_report(path, request_hash):
     if report_id != _hash_json(report):
         raise ValueError("existing refresh report differs from its digest")
     report["report_id"] = report_id
-    if report.get("request_hash") != request_hash:
+    if request_hash is not None and report.get("request_hash") != request_hash:
         raise ValueError("run_id cannot be reused with a changed request")
     return report
+
+
+def load_refresh_report(path: Path) -> dict:
+    """Read an intact frozen source report for dependent checks."""
+    return _read_report(Path(path))
 
 
 def evaluate_sources(request_path: Path, project_dir: Path, state_dir: Path, run_id: str) -> dict:

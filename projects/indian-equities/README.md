@@ -90,3 +90,40 @@ at the cutoff. It writes a frozen report under ignored `state/refresh_runs/`.
 `SOURCE_BLOCKED` names each missing, late, stale, or damaged source. Use a new
 run ID after a source update. This check does not validate claims or permit
 real research publication.
+
+## Check claim links and gaps
+
+After a source readiness run, prepare a JSON claim request with `entity`, the
+same `cutoff_timestamp`, and a nonempty `claims` list. Each claim needs
+`claim_id`, `claim_type`, `statement`, `as_of` (YYYY-MM-DD), `source_id`, the
+exact `version_id` from the source report, and `passage_locator`. For example:
+
+```json
+{
+  "entity": "SBI",
+  "cutoff_timestamp": "2026-09-28T18:00:00+05:30",
+  "claims": [{
+    "claim_id": "sbi-deposit-growth",
+    "claim_type": "REPORTED_FACT",
+    "statement": "Deposits grew.",
+    "as_of": "2026-06-30",
+    "source_id": "SBI_Q1FY27",
+    "version_id": "<64-character version ID from source report>",
+    "passage_locator": "page 12, deposits table"
+  }]
+}
+```
+
+```sh
+python3 -m src.kb_runtime evaluate-claims \
+  --claims path/to/claims.json \
+  --source-report projects/indian-equities/state/refresh_runs/sbi-refresh-001.json \
+  --run-id sbi-claims-001
+```
+
+The report under ignored `state/claim_runs/` checks source version and raw
+bytes and lists an open gap for every claim. A linked source still has
+`passage_status: UNVERIFIED`: the command cannot decide whether the passage
+supports the statement. Derived and inferred claims need later calculation
+or judgment checks. `CLAIMS_BLOCKED` is expected; this command does not
+authorize real research publication.
