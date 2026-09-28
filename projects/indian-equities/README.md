@@ -235,6 +235,32 @@ fails. The old `Agents/*/contract.yaml` files remain design references; they
 are not callable skills. This workflow grants no publication permission and
 does not execute analysis, case opening, or learning stages.
 
+## Freeze an internal analyst worksheet
+
+`analyze-judgment` checks a strict analyst packet against one frozen claim
+review and the typed metric catalog at its cutoff. It records four research
+layers, a most-likely path, independent debates, catalysts, valuation
+assumptions, and judgment checks. The packet schema and a synthetic example
+are in `tests/test_analysis_judgment.py`. Run it with:
+
+```sh
+python3 -m src.kb_runtime analyze-judgment \
+  --packet path/to/analysis.json \
+  --claim-review-report path/to/claim-review.json \
+  --project-dir projects/indian-equities \
+  --catalog projects/indian-equities/data/registry/identity.sqlite \
+  --state-dir projects/indian-equities/state \
+  --run-id analysis-001
+```
+
+The fair value is an **analyst estimate**: base value plus declared
+probability-weighted incremental impacts, rounded to two decimal places.
+The command checks the model file's hash but does not verify its formulas,
+assumptions, causal explanations, or the analyst's independence claims.
+Market price, consensus, score, and trading stance remain `NOT_ASSESSED`;
+judgment stays `HUMAN_REVIEW_REQUIRED`, and `publication_allowed` stays false.
+Use a new run ID and `previous_report_id` for a later worksheet revision.
+
 ## Register issuer and traded-security identity
 
 After storing a reviewed exchange security file with `record-source`, make an

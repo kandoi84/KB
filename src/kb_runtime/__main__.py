@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 
+from .analysis_judgment import analyze_judgment
 from .claim_lineage import evaluate_claims
 from .claim_review import review_claims
 from .evidence_refresh import refresh_evidence
@@ -167,6 +168,14 @@ def main():
     workflow.add_argument("--catalog", type=Path,
                           default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     workflow.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    judgment = subparsers.add_parser("analyze-judgment", help="Freeze an internal analyst worksheet")
+    judgment.add_argument("--packet", type=Path, required=True)
+    judgment.add_argument("--claim-review-report", type=Path, required=True)
+    judgment.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    judgment.add_argument("--catalog", type=Path,
+                          default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    judgment.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    judgment.add_argument("--run-id", required=True)
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -230,6 +239,9 @@ def main():
                 args.source_request, args.claims, args.passage_packet, args.review_packet,
                 args.contract, args.project_dir, args.catalog, args.state_dir, args.run_id,
             )
+        elif args.command == "analyze-judgment":
+            result = analyze_judgment(args.packet, args.claim_review_report, args.project_dir,
+                                      args.catalog, args.state_dir, args.run_id)
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}
