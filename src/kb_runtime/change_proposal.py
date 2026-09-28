@@ -3,6 +3,7 @@
 import hashlib
 import os
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Mapping
 
@@ -40,7 +41,9 @@ def _packet(value):
         raise ValueError("proposal versions must be distinct and pinned")
     if not isinstance(value["change_type"], str) or value["change_type"] not in CHANGE_TYPES:
         raise ValueError("proposal change type is invalid")
-    _timestamp(value["created_at"], "created_at")
+    created = datetime.fromisoformat(_timestamp(value["created_at"], "created_at"))
+    if created > datetime.now(timezone.utc):
+        raise ValueError("proposal created_at is in the future")
     if not isinstance(value["rationale"], str) or len(value["rationale"].strip()) < 12:
         raise ValueError("proposal rationale must be substantive")
     paths = value["changed_contract_paths"]

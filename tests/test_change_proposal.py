@@ -30,7 +30,7 @@ def _ready(tmp_path, *, linked=True, change_type="PROMPT"):
     candidate.write_bytes(b"candidate version")
     packet = {"proposal_id": "proposal-1", "change_type": change_type,
               "baseline_version": "version-1", "candidate_version": "version-2",
-              "author_id": "analyst-1", "created_at": "2027-07-17T10:00:00+05:30",
+              "author_id": "analyst-1", "created_at": "2026-09-28T10:00:00+05:30",
               "changed_contract_paths": ["config/runtime_contracts/evidence_review.v1.json"],
               "rationale": "Correct a reproducible stale evidence process failure",
               "eval_candidate_ids": candidate_ids}
@@ -71,6 +71,16 @@ def test_unlinked_proposal_is_allowed_but_cannot_claim_an_eval_trigger(tmp_path)
     receipt = register_change_proposal(packet_path, **kwargs)
     assert receipt["eval_candidate_ids"] == []
     assert receipt["eval_candidates"] == []
+
+
+def test_future_dated_proposal_is_rejected_before_receipt_or_artifact_store(tmp_path):
+    packet_path, packet, kwargs, state = _ready(tmp_path, linked=False)
+    packet["created_at"] = "2099-01-01T00:00:00+00:00"
+    _write(packet_path, packet)
+    with pytest.raises(ValueError, match="future"):
+        register_change_proposal(packet_path, **kwargs)
+    assert not (state / "change_proposals/proposal-1.json").exists()
+    assert not (state / "change_artifacts").exists()
 
 
 def test_forged_or_damaged_eval_candidate_fails_source_replay(tmp_path):
