@@ -10,6 +10,7 @@ from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
 from .passage_evidence import evaluate_passages
 from .pdf_chunks import extract_pdf_filing, query_pdf_chunks, review_pdf_role
+from .retrieval_eval import evaluate_retrieval
 from .source_refresh import evaluate_sources
 from .source_store import record_source
 from .text_chunks import extract_text_filing, query_text_chunks
@@ -128,6 +129,12 @@ def main():
     search.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     search.add_argument("--catalog", type=Path,
                         default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    retrieval_eval = subparsers.add_parser("eval-retrieval", help="Score a reviewed text retrieval gold set")
+    retrieval_eval.add_argument("--gold", type=Path, required=True)
+    retrieval_eval.add_argument("--answers", type=Path)
+    retrieval_eval.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    retrieval_eval.add_argument("--catalog", type=Path,
+                                default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -184,6 +191,8 @@ def main():
                 isin=args.isin, document_types=args.document_types,
                 speaker_role=args.speaker_role, limit=args.limit,
                 include_superseded=args.include_superseded)}
+        elif args.command == "eval-retrieval":
+            result = evaluate_retrieval(args.gold, args.catalog, args.project_dir, args.answers)
         elif args.command == "refresh-evidence":
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,

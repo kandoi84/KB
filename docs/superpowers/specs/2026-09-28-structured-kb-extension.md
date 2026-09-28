@@ -192,9 +192,10 @@ remain readable but cannot enter historical decisions.
 
 ## Retrieval evaluation contract
 
-Store 30–50 reviewed questions as JSONL with `question_id`, `question`,
-`issuer_id`, optional `isin`, `cutoff`, filters, `answerability`, `gold_answer`,
-`gold_chunk_ids`, `gold_metric_ids`, and reviewer/version. Include reported
+Store 30–50 reviewed questions as JSONL with `case_id`, `question`,
+`issuer_id`, optional `isin`, `cutoff`, filters, expected state, gold answer,
+source-version/raw-hash/quote evidence groups, and reviewer/version. Stable
+source anchors survive parser changes better than chunk IDs. Include reported
 facts, guidance, management versus analyst statements, revision history,
 wrong-issuer distractors, future filings, contradictions, and no-answer cases.
 Each index/parser change reports recall@5 and citation precision separately
@@ -203,9 +204,12 @@ baseline and rubric before a candidate run. Require at least five no-answer
 and five revision/future-cutoff cases in the 30–50 question set. First
 promotion gate: recall@5 >= 0.9 on answerable cases, citation precision >=
 0.95, abstention accuracy >= 0.9, no regression against baseline on any hard
-case, 100% cutoff provenance, and zero wrong-issuer citations. These are
-proposed gates, not measured results. The investment ranking eval remains
-separate.
+case, 100% cutoff provenance, and zero wrong-issuer citations. The 04E
+runner scores text retrieval and optional submitted answers separately.
+Synthetic contract fixtures are not measured research quality; real reviewed
+gold, corpus freeze, and a frozen baseline remain promotion gates. Numeric
+questions use typed metrics and need a separate scored path. The investment
+ranking eval remains separate.
 
 ## Source and tool choice
 

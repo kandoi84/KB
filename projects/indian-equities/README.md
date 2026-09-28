@@ -328,3 +328,20 @@ This is a lexical baseline pending the reviewed retrieval evaluation set.
 Search text is a citation candidate. Numeric answers and screens use typed
 metrics, not the words or figures found in a chunk. The search cannot publish
 research.
+
+Score a 30–50 case reviewed text gold set with:
+
+```sh
+python3 -m src.kb_runtime eval-retrieval --gold path/to/gold.jsonl \
+  --catalog projects/indian-equities/data/registry/identity.sqlite
+```
+
+Pass `--answers path/to/answers.jsonl` to score a separate answer generator.
+The runner reports source-quote recall at five, empty results for reviewed
+absence cases, exact submitted answer accuracy, citation precision, and
+abstention accuracy with counts. Without answers, answer quality is `NOT_RUN`.
+Gold cases pin source version, raw hash, and exact quote; PDF anchors may pin
+a physical page. Real quality and promotion remain blocked until a reviewed
+real gold set and frozen baseline exist. Synthetic fixture scores only check
+the runner's behavior. The reported catalog hash is a partial receipt, not a
+frozen source corpus. Numeric-answer evaluation belongs to typed metrics.
