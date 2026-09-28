@@ -61,3 +61,32 @@ version record under tracked `data/registry/sources/`. It returns the source
 ID, version ID, and raw SHA-256 hash. Repeating the same input returns the
 same version. The source register is an update trail, not approval of the
 source or its claims. See `GOVERNANCE/INGESTION_POLICY.md` for the rules.
+
+## Check source readiness
+
+Create a JSON request with a research `entity`, a timezone-aware
+`cutoff_timestamp`, and a nonempty `required_sources` list. Each entry names a
+registered `source_id` and its allowed `max_age_days`. Shared macro and sector
+sources may support another entity. For example:
+
+```json
+{
+  "entity": "SBI",
+  "cutoff_timestamp": "2026-09-28T18:00:00+05:30",
+  "required_sources": [{"source_id": "SBI_Q1FY27", "max_age_days": 60}]
+}
+```
+
+Run the check from the repository root:
+
+```sh
+python3 -m src.kb_runtime evaluate-sources \
+  --request path/to/refresh-request.json --run-id sbi-refresh-001
+```
+
+The command checks source dates, registered versions, raw file hashes, and age
+at the cutoff. It writes a frozen report under ignored `state/refresh_runs/`.
+`SOURCE_READY` means all requested source files passed these checks.
+`SOURCE_BLOCKED` names each missing, late, stale, or damaged source. Use a new
+run ID after a source update. This check does not validate claims or permit
+real research publication.

@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 
+from .source_refresh import evaluate_sources
 from .source_store import record_source
 from .workflow import run_company_research
 
@@ -23,10 +24,20 @@ def main():
         "--project-dir", type=Path,
         default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
     )
+    refresh = subparsers.add_parser("evaluate-sources", help="Freeze source readiness at a cutoff")
+    refresh.add_argument("--request", type=Path, required=True)
+    refresh.add_argument("--run-id", required=True)
+    refresh.add_argument(
+        "--project-dir", type=Path,
+        default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
+    )
+    refresh.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
             result = record_source(args.metadata, args.raw_file, args.project_dir)
+        elif args.command == "evaluate-sources":
+            result = evaluate_sources(args.request, args.project_dir, args.state_dir, args.run_id)
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}
