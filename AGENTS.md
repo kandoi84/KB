@@ -5,3 +5,4 @@
 - Keep source documents and raw data separate from derived analysis. Never present synthetic inputs as real research.
 - Before changing the runtime, read the relevant code and run checks for the affected path. The current runtime blocks real research publication until source validation exists; keep that gate intact.
 - Stage only files owned by the current task. Do not commit other untracked research files.
+- After a verified change, commit the task's completed files and push the feature branch to `origin` automatically. Do not push `main`, bypass checks, or include another session's changes. If push fails, report the exact blocker.
