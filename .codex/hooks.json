@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/stop_git_sync.py\"",
-            "timeout": 30,
+            "timeout": 120,
             "statusMessage": "Checking KB commit and push status"
           }
         ]
