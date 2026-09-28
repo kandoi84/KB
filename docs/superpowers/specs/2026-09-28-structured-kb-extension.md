@@ -22,6 +22,21 @@ filing and ISIN relationship were public by the cutoff; the result is labelled
 publication time blocks both modes. Revisions append new records and point to
 the prior version. A later restatement never replaces an earlier observation.
 
+The 04F typed-metric implementation uses a separate `query_backfilled_metrics`
+path. Separate reviewed filing and identity archive attestations bind issuer,
+ISIN, company/security source versions, filing source version, exact filing
+SHA-256, publication time, and identity announcement time to raw archive bytes
+recorded by the requested cutoff. Every eligible revision needs its own filing
+proof and a matching identity proof. Outputs retain both proof/reconstruction times, the
+`BACKFILLED` label, and `publication_allowed: false`. This is a **manual
+research attestation**: `record_source` metadata times are caller supplied,
+and the local runtime cannot authenticate an exchange archive or its historic
+timestamp independently. Its primary-exchange hostname and digest checks
+catch internal mismatch and tampering, but a reviewer must check the actual
+source, rights, and timestamp evidence. Do not treat synthetic fixtures or a
+current archive URL as historical availability proof. An automated trusted
+backfill needs a verifiable timestamped digest or signed primary artifact.
+
 ## Core schema proposal (SQLite)
 
 This sketches the active catalog; the runtime schema in `identity_store.py`,
