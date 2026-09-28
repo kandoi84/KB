@@ -181,6 +181,35 @@ PDF and binary files stay `UNSUPPORTED_FORMAT`. `QUOTE_PRESENT` proves byte
 presence only. Claim meaning stays `UNVERIFIED`, gaps remain open, and real
 publication stays blocked.
 
+## Review direct filing claims
+
+After `evaluate-passages`, prepare a review packet with `entity`, the same
+`cutoff_timestamp`, exact `claim_report_id` and `passage_report_id`, and a
+`decisions` list. Each decision names a claim and reviewer, review time,
+local-analysis rights evidence and decision, semantic decision, review note,
+contradiction status and related claim IDs. Copy the exact `source_id`,
+`version_id`, `raw_sha256`, `verbatim_quote`, and `byte_offset` from that
+claim's frozen passage result. See the 05 design spec for the allowed values.
+
+```sh
+python3 -m src.kb_runtime review-claims \
+  --packet path/to/review-packet.json \
+  --claim-report projects/indian-equities/state/claim_runs/sbi-claims-001.json \
+  --passage-report projects/indian-equities/state/passage_runs/sbi-passages-001.json \
+  --run-id sbi-review-001
+```
+
+The frozen report under ignored `state/claim_review_runs/` can mark a direct
+reported fact or management guidance `INTERNAL_REVIEWED` only when the exact
+quote, reviewed filing and identity, strict cutoff, local-analysis rights,
+human meaning review, and known-conflict decision all pass. Other claim types
+stay blocked until their own contracts exist. The original gap report stays
+unchanged; only this review report records a closed receipt. Human review does
+not prove meaning, license scope, or that every contradiction was found.
+Local hashes are integrity checks, not signed proof against someone who can
+rewrite the whole local report chain.
+`publication_allowed` remains false for real companies.
+
 ## Register issuer and traded-security identity
 
 After storing a reviewed exchange security file with `record-source`, make an

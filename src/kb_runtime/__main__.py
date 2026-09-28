@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from .claim_lineage import evaluate_claims
+from .claim_review import review_claims
 from .evidence_refresh import refresh_evidence
 from .filtered_retrieval import search_chunks
 from .identity_store import register_identity, resolve_symbol
@@ -59,6 +60,15 @@ def main():
         default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
     )
     passages.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    review = subparsers.add_parser("review-claims", help="Freeze internal claim review decisions")
+    review.add_argument("--packet", type=Path, required=True)
+    review.add_argument("--claim-report", type=Path, required=True)
+    review.add_argument("--passage-report", type=Path, required=True)
+    review.add_argument("--run-id", required=True)
+    review.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    review.add_argument("--catalog", type=Path,
+                        default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    review.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     identity = subparsers.add_parser("register-identity", help="Register a sourced ISIN and symbol")
     identity.add_argument("--request", type=Path, required=True)
     identity.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
@@ -158,6 +168,11 @@ def main():
         elif args.command == "evaluate-passages":
             result = evaluate_passages(
                 args.packet, args.claim_report, args.project_dir, args.state_dir, args.run_id
+            )
+        elif args.command == "review-claims":
+            result = review_claims(
+                args.packet, args.claim_report, args.passage_report, args.project_dir,
+                args.catalog, args.state_dir, args.run_id,
             )
         elif args.command == "register-identity":
             result = register_identity(args.request, args.project_dir, args.catalog)
