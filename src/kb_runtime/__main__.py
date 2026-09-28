@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from .analysis_judgment import analyze_judgment
+from .case_snapshot import open_sandbox_case
 from .claim_lineage import evaluate_claims
 from .claim_review import review_claims
 from .evidence_refresh import refresh_evidence
@@ -188,6 +189,15 @@ def main():
     gap.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     gap.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     gap.add_argument("--attempt-id", required=True)
+    case = subparsers.add_parser("open-sandbox-case", help="Freeze a replay-verified internal case")
+    for name in ("packet", "source-request", "claim-request", "passage-packet",
+                 "review-packet", "workflow-contract", "claim-review-report",
+                 "analysis-packet", "analysis-report"):
+        case.add_argument(f"--{name}", type=Path, required=True)
+    case.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    case.add_argument("--catalog", type=Path,
+                      default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    case.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -259,6 +269,15 @@ def main():
                 args.packet, args.claim_report, args.source_report,
                 args.source_request, args.claims, args.raw_file, args.metadata,
                 args.project_dir, args.state_dir, args.attempt_id,
+            )
+        elif args.command == "open-sandbox-case":
+            result = open_sandbox_case(
+                args.packet, source_request=args.source_request,
+                claim_request=args.claim_request, passage_packet=args.passage_packet,
+                review_packet=args.review_packet, workflow_contract=args.workflow_contract,
+                claim_review_report=args.claim_review_report,
+                analysis_packet=args.analysis_packet, analysis_report=args.analysis_report,
+                project_dir=args.project_dir, catalog=args.catalog, state_dir=args.state_dir,
             )
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)

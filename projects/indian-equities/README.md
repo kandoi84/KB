@@ -292,6 +292,42 @@ Market price, consensus, score, and trading stance remain `NOT_ASSESSED`;
 judgment stays `HUMAN_REVIEW_REQUIRED`, and `publication_allowed` stays false.
 Use a new run ID and `previous_report_id` for a later worksheet revision.
 
+## Open a sandbox case
+
+First complete a three-stage `run-evidence-workflow` and an
+`analyze-judgment` report at the same cutoff. Prepare a case packet with
+`case_id`, both parent run IDs, issuer ID, ISIN, cutoff, `mode: SANDBOX`,
+`opened_at`, SHA-256 hashes of all eight input files below, a falsifiable
+hypothesis, existing claim or metric citation IDs, and an `outcome` target.
+The exact packet contract and synthetic example are in
+`tests/test_case_snapshot.py`.
+
+```sh
+python3 -m src.kb_runtime open-sandbox-case \
+  --packet path/to/case.json \
+  --source-request path/to/sources.json \
+  --claim-request path/to/claims.json \
+  --passage-packet path/to/passages.json \
+  --review-packet path/to/review.json \
+  --workflow-contract projects/indian-equities/config/runtime_contracts/evidence_review.v1.json \
+  --claim-review-report projects/indian-equities/state/claim_review_runs/flow-001.json \
+  --analysis-packet path/to/analysis.json \
+  --analysis-report projects/indian-equities/state/analysis_runs/analysis-001.json \
+  --project-dir projects/indian-equities \
+  --catalog projects/indian-equities/data/registry/identity.sqlite \
+  --state-dir projects/indian-equities/state
+```
+
+The command replays the completed parents and freezes
+`state/cases/<case_id>.json`. Repeating the same case with unchanged inputs
+returns that case; changed inputs under the same ID fail. The target is an
+analyst hypothesis and the fair value remains an unverified estimate. A
+case opened after its cutoff day is marked `HISTORICAL_RECONSTRUCTION`.
+An optional prior-case link checks the local receipt structure and digest;
+it does not independently prove when the earlier case was written.
+The case has no score, price, trade, or publication permission. Outcomes,
+historical performance, and any live decision gate remain pending.
+
 ## Register issuer and traded-security identity
 
 After storing a reviewed exchange security file with `record-source`, make an
