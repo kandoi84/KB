@@ -34,7 +34,7 @@
 
 **Files:** Create `src/kb_runtime/outcome_postmortem.py` and `tests/test_outcome_postmortem.py`. Reuse 09's `open_sandbox_case` and `verify_case_parents`; expose a narrow frozen-case replay helper in `case_snapshot.py` with 09 tests if the case equality check cannot be done cleanly through the public entry point. Do not copy the 09 validators.
 
-**Interface:** `append_outcome_observation(packet_path: Path, *, project_dir: Path, catalog: Path, state_dir: Path, case_replay_inputs: Mapping[str, Path]) -> dict`. The packet uses the exact observation fields in the spec. `case_replay_inputs` supplies the eight 09 input paths for replay verification. Return the frozen event.
+**Interface:** `append_outcome_observation(packet_path: Path, *, case_packet_path: Path, project_dir: Path, catalog: Path, state_dir: Path, case_replay_inputs: Mapping[str, Path]) -> dict`. The packet uses the exact observation fields in the spec. `case_packet_path` and `case_replay_inputs` supply the original 09 packet and its eight input paths for full frozen-case reconstruction. Return the frozen event.
 
 - [ ] Write a failing synthetic integration test that opens a real 09 sandbox case, registers a reviewed reported metric for the future outcome period, appends an observation, and checks exact citation, decimal, source raw hash, cutoff, and three safety flags.
 - [ ] Run `python3 -m pytest -q tests/test_outcome_postmortem.py`; confirm the intended failure.
@@ -45,7 +45,7 @@
 
 **Files:** Extend `src/kb_runtime/outcome_postmortem.py` and `tests/test_outcome_postmortem.py`.
 
-**Interface:** `evaluate_due_case(packet_path: Path, *, project_dir: Path, catalog: Path, state_dir: Path, case_replay_inputs: Mapping[str, Path]) -> dict`. The strict due packet uses the fields and review object in the spec. Return either a pending or complete immutable postmortem; on reproducible bad process, also create the unreviewed eval candidate.
+**Interface:** `evaluate_due_case(packet_path: Path, *, case_packet_path: Path, project_dir: Path, catalog: Path, state_dir: Path, case_replay_inputs: Mapping[str, Path]) -> dict`. The strict due packet uses the fields and review object in the spec. Return either a pending or complete immutable postmortem; on reproducible bad process, also create the unreviewed eval candidate.
 
 - [ ] Write failing tests for a due event before deadline, missing observation, missing review, each of four process/result quadrants, and decimal boundaries under both case comparators. Confirm process status comes only from the review packet.
 - [ ] Run the focused test and confirm intended failures.
@@ -56,7 +56,7 @@
 
 **Files:** Modify `src/kb_runtime/__main__.py`, `projects/indian-equities/README.md`, and `docs/superpowers/specs/2026-09-28-kb-mini-spec-program.md`; create `tests/test_outcome_postmortem_cli.py`.
 
-**Interfaces:** Add `append-case-outcome --packet --project-dir --catalog --state-dir` and `evaluate-due-case --packet --project-dir --catalog --state-dir`, each with the required 09 replay input paths, following 09 CLI names. Print one JSON receipt with safety flags; exit nonzero without success JSON on rejection.
+**Interfaces:** Add `append-case-outcome --packet --case-packet --project-dir --catalog --state-dir` and `evaluate-due-case --packet --case-packet --project-dir --catalog --state-dir`, each with the required eight 09 replay input paths, following 09 CLI names. Print one JSON receipt with safety flags; exit nonzero without success JSON on rejection.
 
 - [ ] Write failing CLI tests for accepted observation, completed due evaluation, pending due state, and rejected changed replay.
 - [ ] Run `python3 -m pytest -q tests/test_outcome_postmortem_cli.py`; confirm intended failures.

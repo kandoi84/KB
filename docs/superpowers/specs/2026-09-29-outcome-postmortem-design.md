@@ -52,6 +52,7 @@ are timezone-aware analyst declarations; `recorded_at >= observed_at`.
 The case must exist, have a valid digest, and be `SANDBOX_OPEN`. It must
 still say all three safety fields above. Read it from the expected case path;
 do not accept arbitrary parent paths or a rehashed replacement of a case.
+The caller supplies the original case packet path and eight input paths.
 Rebuild the expected case from its original case packet and exact eight input
 paths, compare it with the frozen case, then run the 09 parent validator.
 This rechecks input bindings, raw source, review, model, and cutoff. A local

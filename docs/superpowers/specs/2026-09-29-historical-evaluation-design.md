@@ -23,7 +23,8 @@ turn those booleans true or change any production pointer.
 
 Reuse 09's case ID, digest, cutoff, parent input hashes, timing class and
 publication block; revalidate the whole frozen case against its parents,
-including exact bytes and the reconstructed case body, before counting it.
+including exact bytes and the reconstructed case body from the original case
+packet and eight input paths, before counting it.
 The needed `verify_frozen_case` helper belongs in 09's case module; a matching
 `case_digest` alone is not authentication. Reuse 10's observation/postmortem
 link only as a qualitative diagnostic. Reuse 04E's strict JSONL, dataset kind,
