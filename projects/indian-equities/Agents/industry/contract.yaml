@@ -1,0 +1,22 @@
+agent_id: industry
+version: '1.0'
+mission: Model industry-specific economics, KPIs and valuation conventions.
+reads:
+- kb/macro/**
+- kb/sectors/**
+- data/normalized/industry/**
+writes:
+- kb/industries/**
+- gaps/industry/**
+required_checks:
+- industry_kpis_defined
+- operating_model_explicit
+- valuation_conventions_defined
+prohibited_actions:
+- company_recommendation
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

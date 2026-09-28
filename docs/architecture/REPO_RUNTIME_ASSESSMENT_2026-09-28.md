@@ -9,11 +9,13 @@
   `projects/indian-equities/Framework/specs/architecture-review-handoff.md`
   describes the six runtime responsibilities, state machine, Case Book and
   acceptance tests. It had no executable implementation.
-- **Outside Git:** the ChatGPT Library ZIPs in Downloads contain additional
-  framework, governance, agent, schema, eval and company documents. They were
-  inspected for overlap but are not yet the Git master. The downloaded HDFC
-  bank comparison, probability and premortem files are preliminary research;
-  they do not contain a complete validated company snapshot.
+- **Imported after this assessment:** the ChatGPT Library ZIPs supplied
+  framework, governance, agent, schema, eval and Reliance company documents.
+  They now live under `projects/indian-equities/` without replacing existing
+  research. The downloaded HDFC Bank and ICICI Bank comparison, probability
+  and premortem files are preliminary research; they do not contain a complete
+  validated company snapshot. The standardized KB ZIP matched the existing
+  macro and financials-lending files exactly and was not imported again.
 - **Existing executable code:** `ttl_cache.py` and its tests are unrelated to
   orchestration. Before this slice there was no runtime entrypoint, durable
   run state, run manifest, executable dependency gate or automatic Case Book.

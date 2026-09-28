@@ -1,0 +1,14 @@
+entity: HDFC Bank
+as_of: '2026-09-27'
+debates:
+- question: Deposit growth remains sufficient to support low/mid-teens loan growth
+    without renewed funding stress
+  probability: 0.72
+  confidence: B
+- question: NIM/ROA improve over the next 4-6 quarters as deposit repricing catches
+    up
+  probability: 0.65
+  confidence: B-
+- question: Credit costs remain <=0.6% through FY27
+  probability: 0.75
+  confidence: B

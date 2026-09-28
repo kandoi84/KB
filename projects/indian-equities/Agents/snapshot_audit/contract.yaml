@@ -1,0 +1,26 @@
+agent_id: snapshot_audit
+version: '1.0'
+mission: Enforce publication gates and freeze immutable snapshots.
+reads:
+- plans/**
+- logs/**
+- kb/**
+- derived/**
+- gaps/**
+- config/**
+writes:
+- snapshots/**
+- logs/audit/**
+required_checks:
+- publication_gate
+- versions_complete
+- critical_gaps_disclosed
+- snapshot_frozen
+prohibited_actions:
+- modify_upstream_analysis
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

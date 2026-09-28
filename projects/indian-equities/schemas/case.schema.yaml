@@ -1,0 +1,24 @@
+schema_version: '1.0'
+required_inception:
+- case_id
+- entity
+- decision_date
+- information_cutoff
+- price
+- benchmark
+- recommendation
+- valuation
+- key_probabilities
+- premortem
+- critical_gaps
+- snapshot_id
+outcome_append_only:
+- evaluation_date
+- stock_return
+- benchmark_return
+- relative_return
+- fundamental_outcome
+- catalyst_outcome
+- thesis_result
+- postmortem
+- lessons

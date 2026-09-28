@@ -1,0 +1,31 @@
+version: '1.0'
+default:
+  fresh_max: 1.0
+  warning_max: 1.5
+  stale_max: 2.0
+  above: EXPIRED
+classes:
+  price:
+    sla_days: 1
+  fx:
+    sla_days: 1
+  commodity:
+    sla_days: 1
+  rates_yields:
+    sla_days: 1
+  market_multiples:
+    sla_days: 1
+  consensus:
+    sla_days: 7
+  sentiment:
+    sla_days: 7
+  high_frequency_macro:
+    sla_days: 7
+  industry_monthly:
+    sla_days: 35
+  company_reported_kpi:
+    expiry: next_result
+  management_guidance:
+    expiry: superseded_or_next_result
+  structural_research:
+    sla_days: 180

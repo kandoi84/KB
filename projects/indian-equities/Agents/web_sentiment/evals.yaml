@@ -1,0 +1,8 @@
+agent_id: web_sentiment
+required_eval_families:
+- accuracy
+- provenance
+- workflow
+- reproducibility
+- gap_discipline
+minimum_production_trust: 75

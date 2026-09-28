@@ -1,0 +1,23 @@
+agent_id: workflow_compliance
+version: '1.0'
+mission: Verify required workflow steps were actually executed.
+reads:
+- GOVERNANCE/**
+- config/**
+- plans/**
+- logs/**
+- derived/**
+writes:
+- logs/compliance/**
+required_checks:
+- plan_vs_execution
+- required_sources_checked
+- required_agents_run
+prohibited_actions:
+- modify_worker_output
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

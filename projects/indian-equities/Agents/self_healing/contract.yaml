@@ -1,0 +1,29 @@
+agent_id: self_healing
+version: '1.0'
+mission: Diagnose system failures and propose but never silently deploy production
+  repairs.
+reads:
+- logs/**
+- evals/**
+- prompts/production/**
+- config/**
+- agents/**
+writes:
+- prompts/proposals/**
+- workflow/proposals/**
+- evals/benchmarks/**
+required_checks:
+- failure_reproduced
+- repair_proposed
+- target_eval_defined
+- regression_defined
+prohibited_actions:
+- modify_production_prompt
+- modify_production_workflow
+- deploy_without_human_approval
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

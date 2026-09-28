@@ -1,0 +1,23 @@
+agent_id: macro
+version: '1.0'
+mission: Maintain universal macro facts, releases, vintages and regime state.
+reads:
+- data/raw/macro/**
+- data/normalized/macro/**
+writes:
+- data/normalized/macro/**
+- kb/macro/**
+- gaps/macro/**
+required_checks:
+- release_date_preserved
+- observation_period_preserved
+- vintage_preserved
+- primary_source_preferred
+prohibited_actions:
+- company_recommendation
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

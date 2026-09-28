@@ -1,0 +1,6 @@
+version: '1.0'
+scores: []
+notes:
+- Trust is agent x task x domain
+- Agent confidence is not Agent Trust Score
+- Material changes trigger revalidation

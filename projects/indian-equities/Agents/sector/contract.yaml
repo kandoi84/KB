@@ -1,0 +1,21 @@
+agent_id: sector
+version: '1.0'
+mission: Translate macro state into broad sector transmission.
+reads:
+- kb/macro/**
+- data/normalized/sector/**
+writes:
+- kb/sectors/**
+- gaps/sector/**
+required_checks:
+- macro_dependencies_current
+- transmission_explicit
+- structural_vs_current_separated
+prohibited_actions:
+- company_recommendation
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

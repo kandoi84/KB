@@ -1,0 +1,53 @@
+version: '1.0'
+research_hierarchy:
+- macro
+- sector
+- industry
+- company
+complex_task:
+  require_analysis_plan: true
+  require_plan_validation: true
+default_pipeline:
+- evidence
+- normalization
+- macro
+- sector
+- industry
+- company_fundamentals
+- expectations
+- valuation
+- probability
+- premortem
+- workflow_compliance
+- research_integrity
+- snapshot_audit
+publication:
+  require:
+  - provenance_complete
+  - freshness_valid
+  - dependencies_valid
+  - critical_gaps_disclosed
+  - contradictory_evidence_reviewed
+  - premortem_complete
+  - workflow_compliance_pass
+  - research_integrity_pass
+  - trust_threshold_pass
+  - snapshot_frozen
+human_review:
+  mode: exception_driven
+  triggers:
+  - conflicting_high_quality_evidence
+  - material_methodology_ambiguity
+  - novel_out_of_distribution_case
+  - major_human_model_disagreement
+  - structural_model_change
+  - production_prompt_change
+  - production_workflow_change
+  - production_schema_change
+  - material_unresolved_ambiguity
+production_change:
+  requires_failure_reproduction: true
+  requires_target_eval_pass: true
+  requires_regression_pass: true
+  requires_human_approval: true
+  requires_version_bump: true

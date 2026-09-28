@@ -1,0 +1,27 @@
+agent_id: orchestrator
+version: '1.0'
+mission: Create/execute versioned analysis plans and control the DAG.
+reads:
+- GOVERNANCE/**
+- config/**
+- schemas/**
+- kb/**
+- derived/**
+- gaps/**
+writes:
+- plans/**
+- logs/**
+- data/manifests/**
+required_checks:
+- analysis_plan_created
+- dependencies_resolved
+- stop_conditions_defined
+prohibited_actions:
+- perform_primary_investment_analysis
+- change_methodology
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

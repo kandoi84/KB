@@ -1,0 +1,24 @@
+agent_id: learning
+version: '1.0'
+mission: Convert repeated outcomes/errors into lessons, evals and proposed changes.
+reads:
+- cases/**
+- evals/**
+- logs/**
+- trust/**
+writes:
+- evals/benchmarks/**
+- evals/gold_examples/**
+- prompts/proposals/**
+required_checks:
+- lesson_reusable_level
+- failure_reproducible_before_fix
+- regression_required
+prohibited_actions:
+- deploy_production_change
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

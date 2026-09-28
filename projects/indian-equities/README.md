@@ -3,10 +3,28 @@
 Three-layer storage model:
 
 - Local Mac: working copy
-- GitHub: canonical version history
+- GitHub: version history after this branch is pushed and merged
 - ChatGPT Library: agent-readable mirror
 
 Do not store secrets or large licensed raw datasets in Git.
+
+## Project map
+
+- `MASTER.md`: research and valuation rules.
+- `Framework/`, `GOVERNANCE/`, `Agents/`, `config/`, `schemas/`, `trust/`:
+  specifications, policies, agent contracts, and evaluation definitions.
+- `kb/`: shared macro and sector research, source maps, and KB architecture.
+- `Companies/Reliance/`: company thesis, earnings preview, and valuation model.
+- `derived/`: preliminary HDFC Bank and ICICI Bank comparisons, probabilities,
+  and premortems. These are research outputs, not validated company snapshots.
+- `docs/sources/`: the imported Library package manifest.
+- `data/`: reserved input and normalized-data structure; `outputs/` and
+  `state/`: generated local files.
+
+This directory is the single Indian Equities project within `~/code/kb`.
+The older generic KB templates and connector experiments in `~/code/codex-work/`
+remain separate because they are different projects. The imported Library
+documents have not been changed to match the newer runtime code.
 
 ## First runtime slice
 

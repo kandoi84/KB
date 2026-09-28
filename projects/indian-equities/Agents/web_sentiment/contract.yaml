@@ -1,0 +1,21 @@
+agent_id: web_sentiment
+version: '1.0'
+mission: Track narratives and public sentiment without upgrading them into facts.
+reads:
+- data/raw/web/**
+- data/raw/social/**
+writes:
+- derived/sentiment/**
+- gaps/**
+required_checks:
+- sentiment_not_fact
+- source_quality_recorded
+- narrative_change_recorded
+prohibited_actions:
+- upgrade_unverified_claim_to_fact
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

@@ -1,0 +1,13 @@
+schema_version: '1.0'
+required:
+- plan_id
+- plan_version
+- entity
+- task
+- information_cutoff
+- objective
+- required_agents
+- dependencies
+- tasks
+- stop_conditions
+- publication_target

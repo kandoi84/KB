@@ -1,0 +1,22 @@
+agent_id: postmortem
+version: '1.0'
+mission: Compare expected vs realized outcomes and classify errors.
+reads:
+- cases/**
+- snapshots/**
+- data/normalized/market/**
+writes:
+- cases/completed/**
+- evals/calibration/**
+required_checks:
+- expected_vs_realized
+- process_vs_outcome_separated
+- error_classified
+prohibited_actions:
+- rewrite_original_case
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

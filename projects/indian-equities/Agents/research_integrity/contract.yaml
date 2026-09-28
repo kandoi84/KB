@@ -1,0 +1,27 @@
+agent_id: research_integrity
+version: '1.0'
+mission: Challenge unsupported claims, evidence laundering, hindsight and false precision.
+reads:
+- data/**
+- kb/**
+- derived/**
+- gaps/**
+writes:
+- logs/integrity/**
+- gaps/**
+required_checks:
+- unsupported_claims
+- evidence_laundering
+- guidance_vs_fact
+- contradictions
+- false_precision
+- hindsight
+prohibited_actions:
+- change_thesis
+- change_valuation
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material
