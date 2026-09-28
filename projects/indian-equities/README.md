@@ -273,6 +273,38 @@ python3 -m src.kb_runtime query-text-chunks --filing-id F1 \
 Each chunk has an immutable ID, source version, exact raw byte span, and text
 hash. The reader rechecks the raw file, identity, review time, and spans.
 Speaker role is `UNKNOWN` and page number is empty for this plain-text parser.
-It does not guess who spoke. PDF, binary, empty, or oversized input is blocked;
-a separate page-aware PDF parser and reviewed speaker labels are still needed.
+It does not guess who spoke. PDF, binary, empty, or oversized input is blocked
+on this plain-text path.
 These chunks are evidence candidates, not approved research claims.
+
+For a reviewed PDF filing, use the separate page-aware path:
+
+```sh
+python3 -m src.kb_runtime extract-pdf-filing --filing-id F1
+python3 -m src.kb_runtime query-pdf-chunks --filing-id F1 \
+  --cutoff 2026-09-28T18:00:00+05:30
+python3 -m src.kb_runtime review-pdf-role --request path/to/role-review.json
+```
+
+The PDF parser is pinned to `pypdf==6.19.0`. It stores extracted UTF-8 page
+text apart from the raw PDF. A PDF chunk's 1-based page number is its physical
+PDF page. Its byte offsets refer to that derived page text, **not** the raw
+PDF. Every page must have extractable text; corrupt, encrypted, image-only,
+blank-page, or oversized documents block without partial extraction. The
+reader reparses the raw PDF and compares every stored page and chunk. This
+does not validate OCR or a printed page label. A licensed real sample and
+visual page check are required before a source adapter uses this path.
+
+Roles default to `UNKNOWN`. A role review JSON has exactly these fields:
+`review_id`, `filing_id`, `chunk_id`, `page_number`, `byte_start`, `byte_end`,
+`quote`, `speaker_role` (`MANAGEMENT`, `ANALYST`, or `MODERATOR`), `reviewer_id`,
+`reviewed_at`, `evidence_locator`, and `supersedes_review_id` (`null` for the
+first review). Copy the full exact chunk text into
+`quote`. The page and offsets must match that chunk. A review is append-only,
+and the role becomes visible only after both `reviewed_at` and the system
+recorded arrival time. A later review can correct the role by naming the
+previous review ID in `supersedes_review_id`; use `UNKNOWN` to revoke it.
+The PDF extraction also has a system recorded arrival time. An earlier
+strict-live cutoff cannot see chunks first parsed later. Mixed-speaker
+chunks must stay `UNKNOWN`; this path does not infer a role. Neither PDF
+extraction nor role review permits real research publication.

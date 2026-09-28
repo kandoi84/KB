@@ -1,6 +1,6 @@
 # Structured Indian equities KB extension
 
-Date: 2026-09-28. Status: 04A–04B active; 04C plain-text slice active; later adapters planned.
+Date: 2026-09-28. Status: 04A–04C2 controlled local paths active; later adapters planned.
 
 ## Decision
 
@@ -141,7 +141,10 @@ Metrics inherit availability timestamps from their filing. Their own period
 may be a prior comparative period. Plain UTF-8 chunks use exact raw byte
 spans, a fixed 2048-byte maximum, and `UNKNOWN` speaker role. This parser
 does not infer transcript speaker roles or PDF page numbers. PDF and binary
-input are blocked pending a page-aware parser and review contract. Derived
+input are blocked on the plain-text path. The PDF path stores extracted page
+text separately from raw bytes, with physical PDF page numbers and offsets
+into derived UTF-8 page text. Reviewed speaker roles bind exact chunks and
+become visible only after review. A real-sample visual gate remains. Derived
 context is not part of source text or chunk identity.
 04B accepts only a source version recorded as `EXCHANGE_FILING`, with matching
 issuer and observation no later than retrieval or first-seen time. Manual

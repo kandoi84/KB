@@ -8,6 +8,7 @@ from .evidence_refresh import refresh_evidence
 from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
 from .passage_evidence import evaluate_passages
+from .pdf_chunks import extract_pdf_filing, query_pdf_chunks, review_pdf_role
 from .source_refresh import evaluate_sources
 from .source_store import record_source
 from .text_chunks import extract_text_filing, query_text_chunks
@@ -98,6 +99,22 @@ def main():
     chunk_query.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     chunk_query.add_argument("--catalog", type=Path,
                              default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    pdf_extract = subparsers.add_parser("extract-pdf-filing", help="Extract cited PDF pages and chunks")
+    pdf_extract.add_argument("--filing-id", required=True)
+    pdf_extract.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    pdf_extract.add_argument("--catalog", type=Path,
+                             default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    pdf_query = subparsers.add_parser("query-pdf-chunks", help="Read cited PDF chunks at a strict cutoff")
+    pdf_query.add_argument("--filing-id", required=True)
+    pdf_query.add_argument("--cutoff", required=True)
+    pdf_query.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    pdf_query.add_argument("--catalog", type=Path,
+                           default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    pdf_role = subparsers.add_parser("review-pdf-role", help="Review one exact PDF speaker chunk")
+    pdf_role.add_argument("--request", type=Path, required=True)
+    pdf_role.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    pdf_role.add_argument("--catalog", type=Path,
+                          default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -141,6 +158,13 @@ def main():
         elif args.command == "query-text-chunks":
             result = {"chunks": query_text_chunks(args.catalog, args.project_dir,
                                                    args.filing_id, args.cutoff)}
+        elif args.command == "extract-pdf-filing":
+            result = extract_pdf_filing(args.catalog, args.project_dir, args.filing_id)
+        elif args.command == "query-pdf-chunks":
+            result = {"chunks": query_pdf_chunks(args.catalog, args.project_dir,
+                                                  args.filing_id, args.cutoff)}
+        elif args.command == "review-pdf-role":
+            result = review_pdf_role(args.request, args.catalog, args.project_dir)
         elif args.command == "refresh-evidence":
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,
