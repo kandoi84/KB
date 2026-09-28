@@ -235,6 +235,37 @@ fails. The old `Agents/*/contract.yaml` files remain design references; they
 are not callable skills. This workflow grants no publication permission and
 does not execute analysis, case opening, or learning stages.
 
+## Record a classified source gap attempt
+
+Use `attempt-gap` only after reviewing a frozen open gap and the exact source
+permission. Give it the source and claim requests that produced the two frozen
+reports, plus a classification packet. For an eligible public primary source,
+provide a local raw file and matching source metadata:
+
+```sh
+python3 -m src.kb_runtime attempt-gap \
+  --packet path/to/gap-classification.json \
+  --claim-report path/to/claim-report.json \
+  --source-report path/to/source-report.json \
+  --source-request path/to/source-request.json \
+  --claims path/to/claims.json \
+  --raw-file path/to/downloaded-filing.pdf \
+  --metadata path/to/source-metadata.json \
+  --project-dir projects/indian-equities \
+  --state-dir projects/indian-equities/state \
+  --attempt-id gap-attempt-001
+```
+
+The packet fields and allowed classifications are in the [07 design spec](../../docs/superpowers/specs/2026-09-29-gap-adapter-design.md).
+For internal, restricted, or unclassified gaps, omit `--raw-file` and
+`--metadata`; the command writes a blocked receipt without importing a source.
+The local adapter makes no network request. Rights are attested by a human;
+the runtime does not verify an agreement or grant NSE/BSE collection rights.
+Each receipt stays under ignored `state/gap_attempts/<attempt-id>/`, leaves the
+old gap `OPEN`, and has `publication_allowed: false`. A recorded source needs
+a new cutoff refresh, passage check, and 05 claim review before it can support
+research.
+
 ## Freeze an internal analyst worksheet
 
 `analyze-judgment` checks a strict analyst packet against one frozen claim

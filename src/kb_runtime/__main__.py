@@ -9,6 +9,7 @@ from .claim_review import review_claims
 from .evidence_refresh import refresh_evidence
 from .evidence_workflow import run_evidence_workflow
 from .filtered_retrieval import search_chunks
+from .gap_attempt import attempt_gap
 from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
 from .passage_evidence import evaluate_passages
@@ -176,6 +177,17 @@ def main():
                           default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     judgment.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     judgment.add_argument("--run-id", required=True)
+    gap = subparsers.add_parser("attempt-gap", help="Freeze one reviewed local source attempt")
+    gap.add_argument("--packet", type=Path, required=True)
+    gap.add_argument("--claim-report", type=Path, required=True)
+    gap.add_argument("--source-report", type=Path, required=True)
+    gap.add_argument("--source-request", type=Path, required=True)
+    gap.add_argument("--claims", type=Path, required=True)
+    gap.add_argument("--raw-file", type=Path)
+    gap.add_argument("--metadata", type=Path)
+    gap.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    gap.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    gap.add_argument("--attempt-id", required=True)
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -242,6 +254,12 @@ def main():
         elif args.command == "analyze-judgment":
             result = analyze_judgment(args.packet, args.claim_review_report, args.project_dir,
                                       args.catalog, args.state_dir, args.run_id)
+        elif args.command == "attempt-gap":
+            result = attempt_gap(
+                args.packet, args.claim_report, args.source_report,
+                args.source_request, args.claims, args.raw_file, args.metadata,
+                args.project_dir, args.state_dir, args.attempt_id,
+            )
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}
