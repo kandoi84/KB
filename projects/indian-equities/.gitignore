@@ -27,3 +27,4 @@ state/
 
 data/raw/*
 !data/raw/.gitkeep
+data/registry/*.sqlite*

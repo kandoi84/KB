@@ -60,7 +60,7 @@ owned by another session.
 | 02 | Claim lineage and gap ledger | Active, meaning open | Typed claims pin source version and raw hash; every claim has an open gap. |
 | 03 | Repeatable evidence refresh | Active | A run compares prior frozen reports, identifies affected claims, and cannot reuse an ID with changed inputs. |
 | 04 | Passage evidence packet | Active, meaning open | A supplied verbatim quote is checked against the exact raw version when text is supported. Unsupported or absent text stays open. Presence never means semantic approval. |
-| 04A | Issuer and security identity | Planned | Company research uses issuer ID; listed security uses ISIN. Exchange symbols are dated aliases and ambiguous matches block. Existing source versions remain readable. |
+| 04A | Issuer and security identity | Active, caller-reviewed mapping | Company research uses issuer ID; listed security uses ISIN. Exchange symbols are dated aliases and ambiguous matches block. Existing source versions remain readable. |
 | 04B | Point-in-time typed metrics | Planned | Reported and guidance revisions bind ISIN, metric, period end, published and first-seen times, source version, and unit. Cutoff queries never see later revisions; other value kinds need distinct origin contracts. |
 | 04C | Filing and transcript extraction | Planned | Versioned parser produces cited chunks with document type, quarter, page/offset and speaker role when known. Failed extraction stays blocked; derived context never alters raw evidence. |
 | 04D | Filtered retrieval | Planned | Retrieval filters by issuer/security, document type and cutoff; returns immutable chunk IDs. Typed metrics are the authority for numeric answers. |

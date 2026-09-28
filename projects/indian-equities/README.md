@@ -180,3 +180,39 @@ quote bytes in the pinned raw source. Plain text up to 16 MiB is supported;
 PDF and binary files stay `UNSUPPORTED_FORMAT`. `QUOTE_PRESENT` proves byte
 presence only. Claim meaning stays `UNVERIFIED`, gaps remain open, and real
 publication stays blocked.
+
+## Register issuer and traded-security identity
+
+After storing a reviewed exchange security file with `record-source`, make an
+identity request with issuer ID, ISIN, listing and symbol dates, announcement
+and first-seen times, and that source's ID and version ID. For example:
+
+```json
+{
+  "issuer_id": "SBI", "legal_name": "State Bank of India",
+  "isin": "INE062A01020", "security_type": "EQUITY",
+  "listed_from": "1995-01-01", "listed_to": null,
+  "exchange": "NSE", "symbol": "SBIN",
+  "valid_from": "1995-01-01", "valid_to": null,
+  "announced_at": "2026-09-28T09:00:00+05:30",
+  "first_seen_at": "2026-09-28T09:05:00+05:30",
+  "source_id": "SBI_IDENT", "version_id": "<64-character source version ID>",
+  "reviewer_id": "analyst-1", "reviewed_at": "2026-09-28T09:06:00+05:30",
+  "review_decision": "CONFIRMED", "evidence_locator": "security file row 1"
+}
+```
+
+```sh
+python3 -m src.kb_runtime register-identity --request path/to/identity.json
+python3 -m src.kb_runtime resolve-symbol --exchange NSE --symbol SBIN \
+  --effective-date 2026-09-28 --cutoff 2026-09-28T09:06:00+05:30
+```
+
+The local catalog under `data/registry/identity.sqlite` is ignored by Git.
+Registration validates the source bytes and ISIN, rejects conflicting or
+overlapping mappings, and is safe to retry. Resolution hides a mapping until
+its announcement, KB first-seen, and manual review times pass the cutoff. It
+rechecks source bytes before returning an ISIN. The reviewer must inspect the
+named evidence row; the runtime cannot infer identity from the file alone.
+The example dates are illustrative; enter verified dates from the actual
+exchange source.

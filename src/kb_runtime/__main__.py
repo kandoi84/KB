@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .claim_lineage import evaluate_claims
 from .evidence_refresh import refresh_evidence
+from .identity_store import register_identity, resolve_symbol
 from .passage_evidence import evaluate_passages
 from .source_refresh import evaluate_sources
 from .source_store import record_source
@@ -53,6 +54,19 @@ def main():
         default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
     )
     passages.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    identity = subparsers.add_parser("register-identity", help="Register a sourced ISIN and symbol")
+    identity.add_argument("--request", type=Path, required=True)
+    identity.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    identity.add_argument("--catalog", type=Path,
+                          default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    symbol = subparsers.add_parser("resolve-symbol", help="Resolve a dated exchange symbol")
+    symbol.add_argument("--catalog", type=Path,
+                        default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    symbol.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    symbol.add_argument("--exchange", required=True)
+    symbol.add_argument("--symbol", required=True)
+    symbol.add_argument("--effective-date", required=True)
+    symbol.add_argument("--cutoff", required=True)
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -77,6 +91,13 @@ def main():
             result = evaluate_passages(
                 args.packet, args.claim_report, args.project_dir, args.state_dir, args.run_id
             )
+        elif args.command == "register-identity":
+            result = register_identity(args.request, args.project_dir, args.catalog)
+        elif args.command == "resolve-symbol":
+            result = {"isin": resolve_symbol(
+                args.catalog, args.project_dir, args.exchange, args.symbol,
+                args.effective_date, args.cutoff
+            )}
         elif args.command == "refresh-evidence":
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,
