@@ -116,3 +116,16 @@ def test_completed_run_recovers_missing_case(hdfc_input, tmp_path):
     assert result.returncode == 0, result.stderr
     assert case_path.exists()
     assert json.loads(case_path.read_text())["inception"]["entity"] == "HDFC Bank"
+
+
+def test_real_research_cannot_publish_before_source_validation_exists(hdfc_input, tmp_path):
+    data = json.loads(hdfc_input.read_text())
+    data.pop("test_fixture")
+    hdfc_input.write_text(json.dumps(data))
+    state_dir = tmp_path / "state"
+
+    result = invoke(hdfc_input, state_dir)
+    assert result.returncode != 0
+    state = json.loads((state_dir / "runs/hdfc-test/state.json").read_text())
+    assert state["status"] == "BLOCKED_VALIDATION"
+    assert not (state_dir / "cases").exists()

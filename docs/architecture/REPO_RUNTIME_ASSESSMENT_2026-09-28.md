@@ -26,7 +26,8 @@ source IDs, input hash, completed steps and snapshot ID. A failed Case Book
 write leaves publication pending and can resume without repeating completed
 steps. The frozen inception record is never overwritten with different data.
 The HDFC tests use explicitly synthetic research data to exercise these
-control-plane behaviors; they are not a published HDFC recommendation.
+control-plane behaviors; they are not a published HDFC recommendation. The CLI
+rejects real research for publication until source and integrity checks exist.
 
 ## Still missing executable behavior
 

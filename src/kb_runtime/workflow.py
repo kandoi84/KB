@@ -44,6 +44,8 @@ def _canonical_hash(value):
 
 
 def _validate(entity, data):
+    if data.get("test_fixture") is not True:
+        raise ValueError("real research publication is blocked until source and integrity validation exist")
     if data.get("entity") != entity:
         raise ValueError("input entity does not match requested entity")
     cutoff = data.get("cutoff_timestamp")
