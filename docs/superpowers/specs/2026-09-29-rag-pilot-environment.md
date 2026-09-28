@@ -21,6 +21,15 @@ The upstream commits and reasons for reuse are in the [reuse assessment](2026-09
 - Haystack `InMemoryDocumentStore` accepted one synthetic `Document`; `InMemoryBM25Retriever` returned one hit for `revenue FY25` with the expected text. This does not establish filtered or cutoff-safe retrieval.
 - No model downloads were needed for the native-PDF probe. The later standard Docling pipeline may need model artifacts and a separate license/cache review before real files are used.
 
+## Task 2 derived extraction probe
+
+The pilot adapter parses the exact bytes returned by the KB's verified raw-source reader through Docling's `DocumentStream`. It uses the model-free `NativePdfFormatOption` and Docling `HierarchicalChunker`. It writes append-only structured output and chunks in separate derived tables; each chunk must have one valid physical page, and every page must have anchored text. The parser identity includes the installed Docling, `docling-core`, and `docling-parse` versions. Querying reruns the parser and compares stored rows, then applies the existing reviewed-rights, issuer-identity, raw-hash, and strict-cutoff checks. Speaker role stays `UNKNOWN`; `publication_allowed` stays false.
+
+- Installed core `requirements.txt` into the isolated test environment after the initial resolution above, adding `pytest`, `pypdf`, and their needed dependency. The environment now has 121 distributions. The 118-row table below records the original pilot-only resolution.
+- `/tmp/kb-rag-pilot-venv/bin/python -m pytest -q tests/test_docling_pilot.py`: 8 passed. `compileall -q src/kb_runtime`: passed. Latest full isolated suite: 387 passed.
+- Core Python without Docling skips this optional test module. Its latest full suite completed with 379 passed and 1 skipped.
+- Synthetic tests cover physical pages, replay, late extraction, raw and derived tampering, a file-change race, missing/ambiguous page anchors, blank pages, unreviewed rights, and parser-version separation. This remains an installation and contract probe. It does not prove scanned, tabular, or badly ordered PDF fidelity; those require the planned visual review of real licensed samples.
+
 ## Resolved distributions and declared licenses
 
 The table is generated from each installed distribution's `License-Expression`, short `License`, or license classifier, in that order. It records package metadata, not a legal audit of bundled files. No installed metadata declared GPL, AGPL, proprietary, or commercial-only terms. `certifi` and `tqdm` declare MPL-2.0; `pypdfium2` declares bundled dependency licenses; `torch` declares several licenses with an LLVM exception; `regex` includes CNRI-Python; and `python-dateutil` says Dual License. Inspect their license files before broader redistribution. All 118 distributions have some license declaration, but several declarations are free text instead of SPDX expressions.
