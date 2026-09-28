@@ -1,10 +1,15 @@
 import sqlite3
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from test_metric_store import _setup, _source, _write
 from src.kb_runtime.metric_store import register_filing
 from src.kb_runtime.text_chunks import extract_text_filing, query_text_chunks
+
+
+def _cutoff(seconds=1):
+    return (datetime.now(timezone.utc) + timedelta(seconds=seconds)).isoformat()
 
 
 def _filing(tmp_path, text="नमस्ते SBI\n" * 300):
@@ -21,16 +26,19 @@ def _filing(tmp_path, text="नमस्ते SBI\n" * 300):
 
 def test_multibyte_chunks_cover_exact_raw_bytes_and_replay(tmp_path):
     project, catalog, request, raw = _filing(tmp_path)
+    before_extraction = _cutoff(0)
     first = extract_text_filing(catalog, project, "F1")
     second = extract_text_filing(catalog, project, "F1")
     assert first == second
-    rows = query_text_chunks(catalog, project, "F1", "2026-09-28T09:03:00+05:30")
+    assert query_text_chunks(catalog, project, "F1", before_extraction) == []
+    rows = query_text_chunks(catalog, project, "F1", _cutoff())
     assert len(rows) > 1
     assert b"".join(row["text"].encode("utf-8") for row in rows) == raw.read_bytes()
     assert all(row["byte_end"] - row["byte_start"] <= 2048 for row in rows)
     assert all(row["speaker_role"] == "UNKNOWN" and row["page_number"] is None for row in rows)
     assert all(row["period_end"] == "2026-06-30" for row in rows)
     assert all(row["publication_allowed"] is False for row in rows)
+    assert all(row["extraction_recorded_at"] for row in rows)
     assert query_text_chunks(catalog, project, "F1", "2026-09-28T09:02:30+05:30") == []
 
 
@@ -43,7 +51,7 @@ def test_only_implemented_parser_version_is_allowed_and_missing_chunks_are_rejec
         db.execute("DROP TRIGGER text_chunks_no_delete")
         db.execute("DELETE FROM text_chunks WHERE chunk_id=?", (old["chunk_ids"][0],))
     with pytest.raises(ValueError, match="chunk|extraction"):
-        query_text_chunks(catalog, project, "F1", "2026-09-28T09:03:00+05:30", "plain_utf8_v1")
+        query_text_chunks(catalog, project, "F1", _cutoff(), "plain_utf8_v1")
 
 
 def test_rejects_tampered_text_and_raw_source(tmp_path):
@@ -53,7 +61,7 @@ def test_rejects_tampered_text_and_raw_source(tmp_path):
         db.execute("DROP TRIGGER text_chunks_no_update")
         db.execute("UPDATE text_chunks SET text='BAD' WHERE chunk_index=0")
     with pytest.raises(ValueError, match="chunk"):
-        query_text_chunks(catalog, project, "F1", "2026-09-28T09:03:00+05:30")
+        query_text_chunks(catalog, project, "F1", _cutoff())
     raw.write_text("tampered")
     with pytest.raises(ValueError, match="source|digest"):
         extract_text_filing(catalog, project, "F1")
@@ -71,6 +79,20 @@ def test_append_only_rows_and_receipt_replay_guard(tmp_path):
         db.execute("UPDATE text_extractions SET chunk_count=99 WHERE filing_id='F1'")
     with pytest.raises(ValueError, match="extraction"):
         extract_text_filing(catalog, project, "F1")
+
+
+def test_legacy_extraction_without_arrival_fails_closed_until_verified_replay(tmp_path):
+    project, catalog, _, _ = _filing(tmp_path)
+    extract_text_filing(catalog, project, "F1")
+    with sqlite3.connect(catalog) as db:
+        db.execute("DROP TRIGGER text_extraction_arrivals_no_delete")
+        db.execute("DELETE FROM text_extraction_arrivals WHERE filing_id='F1'")
+    with pytest.raises(ValueError, match="arrival"):
+        query_text_chunks(catalog, project, "F1", _cutoff())
+    old_cutoff = _cutoff(0)
+    extract_text_filing(catalog, project, "F1")
+    assert query_text_chunks(catalog, project, "F1", old_cutoff) == []
+    assert query_text_chunks(catalog, project, "F1", _cutoff())
 
 
 def test_rejects_invalid_parser_version(tmp_path):

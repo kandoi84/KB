@@ -308,3 +308,23 @@ The PDF extraction also has a system recorded arrival time. An earlier
 strict-live cutoff cannot see chunks first parsed later. Mixed-speaker
 chunks must stay `UNKNOWN`; this path does not infer a role. Neither PDF
 extraction nor role review permits real research publication.
+
+Search verified filing text within one issuer at a strict cutoff:
+
+```sh
+python3 -m src.kb_runtime search-chunks --issuer-id SBI --query 'capex guidance' \
+  --cutoff 2026-09-28T18:00:00+05:30 --document-type CONCALL_TRANSCRIPT
+```
+
+Optional filters are `--isin`, repeated `--document-type`, `--speaker-role`,
+`--limit` (1–20), and `--include-superseded`. The default excludes earlier
+filing versions once a reviewed successor is visible at the cutoff. Each
+result includes a stable chunk ID, source hash, citation offsets, and a simple
+word-overlap score. Plain-text and PDF extraction must already exist; missing
+extractions are skipped and damaged registered extractions block the search.
+Plain-text extraction also records when it reached the KB. Old extraction rows
+with unknown arrival require verified replay before a strict-live read.
+This is a lexical baseline pending the reviewed retrieval evaluation set.
+Search text is a citation candidate. Numeric answers and screens use typed
+metrics, not the words or figures found in a chunk. The search cannot publish
+research.

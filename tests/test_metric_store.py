@@ -2,6 +2,7 @@ import json
 import sqlite3
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -329,7 +330,7 @@ def test_text_chunk_cli_extracts_and_queries_strictly(tmp_path):
     chunk_ids = json.loads(extracted.stdout)["chunk_ids"]
     queried = subprocess.run([
         sys.executable, "-m", "src.kb_runtime", "query-text-chunks",
-        "--filing-id", "F1", "--cutoff", "2026-09-28T09:03:00+05:30",
+        "--filing-id", "F1", "--cutoff", (datetime.now(timezone.utc) + timedelta(seconds=1)).isoformat(),
         "--project-dir", str(project), "--catalog", str(catalog),
     ], capture_output=True, text=True)
     assert queried.returncode == 0, queried.stderr

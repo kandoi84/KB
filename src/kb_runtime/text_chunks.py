@@ -4,6 +4,7 @@ import hashlib
 import json
 import unicodedata
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .identity_store import _connect, _source, _timestamp
@@ -46,6 +47,13 @@ def _tables(db):
                 REFERENCES text_extractions(filing_id, parser_version),
             UNIQUE (filing_id, parser_version, chunk_index)
         );
+        CREATE TABLE IF NOT EXISTS text_extraction_arrivals (
+            filing_id TEXT NOT NULL, parser_version TEXT NOT NULL,
+            recorded_at TEXT NOT NULL,
+            PRIMARY KEY (filing_id, parser_version),
+            FOREIGN KEY (filing_id, parser_version)
+                REFERENCES text_extractions(filing_id, parser_version)
+        );
         CREATE TRIGGER IF NOT EXISTS text_extractions_no_update BEFORE UPDATE ON text_extractions
             BEGIN SELECT RAISE(ABORT, 'text extractions are append-only'); END;
         CREATE TRIGGER IF NOT EXISTS text_extractions_no_delete BEFORE DELETE ON text_extractions
@@ -54,6 +62,10 @@ def _tables(db):
             BEGIN SELECT RAISE(ABORT, 'text chunks are append-only'); END;
         CREATE TRIGGER IF NOT EXISTS text_chunks_no_delete BEFORE DELETE ON text_chunks
             BEGIN SELECT RAISE(ABORT, 'text chunks are append-only'); END;
+        CREATE TRIGGER IF NOT EXISTS text_extraction_arrivals_no_update BEFORE UPDATE ON text_extraction_arrivals
+            BEGIN SELECT RAISE(ABORT, 'text extraction arrivals are append-only'); END;
+        CREATE TRIGGER IF NOT EXISTS text_extraction_arrivals_no_delete BEFORE DELETE ON text_extraction_arrivals
+            BEGIN SELECT RAISE(ABORT, 'text extraction arrivals are append-only'); END;
     """)
 
 
@@ -147,6 +159,12 @@ def extract_text_filing(catalog_path: Path, project_dir: Path, filing_id: str,
                                     (filing_id, parser_version)).fetchall()
                 if dict(old) != receipt or [dict(row) for row in stored] != expected:
                     raise ValueError("stored text extraction or chunks differ from source")
+            arrival = db.execute("SELECT recorded_at FROM text_extraction_arrivals WHERE filing_id=? AND parser_version=?",
+                                 (filing_id, parser_version)).fetchone()
+            if arrival is None:
+                recorded_at = _timestamp(datetime.now(timezone.utc).isoformat(), "recorded_at")
+                db.execute("INSERT INTO text_extraction_arrivals VALUES (?,?,?)",
+                           (filing_id, parser_version, recorded_at))
     return {"filing_id": filing_id, "parser_version": parser_version,
             "chunk_ids": [row["chunk_id"] for row in expected], "publication_allowed": False}
 
@@ -198,10 +216,17 @@ def query_text_chunks(catalog_path: Path, project_dir: Path, filing_id: str,
                              "raw_sha256": filing["raw_sha256"], "chunk_count": len(expected)}
         if dict(receipt) != canonical_receipt or [dict(row) for row in stored] != expected:
             raise ValueError("stored text extraction or chunks differ from source")
+        arrival = db.execute("SELECT recorded_at FROM text_extraction_arrivals WHERE filing_id=? AND parser_version=?",
+                             (filing_id, parser_version)).fetchone()
+        if arrival is None:
+            raise ValueError("text extraction arrival is unknown; verified replay required")
+        if arrival["recorded_at"] > cutoff:
+            return []
         return [{**row, "source_id": filing["source_id"], "version_id": filing["version_id"],
                  "raw_sha256": filing["raw_sha256"], "isin": filing["isin"],
                  "document_type": filing["document_type"], "period_end": filing["period_end"],
                  "published_at": filing["published_at"],
                  "first_seen_at": filing["first_seen_at"], "reviewed_at": filing["reviewed_at"],
+                 "extraction_recorded_at": arrival["recorded_at"],
                  "availability_mode": "LIVE_STRICT", "publication_allowed": False}
                 for row in expected]

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .claim_lineage import evaluate_claims
 from .evidence_refresh import refresh_evidence
+from .filtered_retrieval import search_chunks
 from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
 from .passage_evidence import evaluate_passages
@@ -115,6 +116,18 @@ def main():
     pdf_role.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     pdf_role.add_argument("--catalog", type=Path,
                           default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    search = subparsers.add_parser("search-chunks", help="Search verified filing chunks at a strict cutoff")
+    search.add_argument("--issuer-id", required=True)
+    search.add_argument("--query", required=True)
+    search.add_argument("--cutoff", required=True)
+    search.add_argument("--isin")
+    search.add_argument("--document-type", action="append", dest="document_types")
+    search.add_argument("--speaker-role")
+    search.add_argument("--limit", type=int, default=5)
+    search.add_argument("--include-superseded", action="store_true")
+    search.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    search.add_argument("--catalog", type=Path,
+                        default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -165,6 +178,12 @@ def main():
                                                   args.filing_id, args.cutoff)}
         elif args.command == "review-pdf-role":
             result = review_pdf_role(args.request, args.catalog, args.project_dir)
+        elif args.command == "search-chunks":
+            result = {"chunks": search_chunks(
+                args.catalog, args.project_dir, args.issuer_id, args.query, args.cutoff,
+                isin=args.isin, document_types=args.document_types,
+                speaker_role=args.speaker_role, limit=args.limit,
+                include_superseded=args.include_superseded)}
         elif args.command == "refresh-evidence":
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,

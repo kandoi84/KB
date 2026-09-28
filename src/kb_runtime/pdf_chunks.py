@@ -284,6 +284,7 @@ def query_pdf_chunks(catalog_path: Path, project_dir: Path, filing_id: str,
                  "raw_sha256": filing["raw_sha256"], "isin": filing["isin"],
                  "document_type": filing["document_type"], "period_end": filing["period_end"],
                  "published_at": filing["published_at"], "first_seen_at": filing["first_seen_at"],
+                 "extraction_recorded_at": receipt["recorded_at"],
                  "offset_basis": "DERIVED_PAGE_UTF8", "speaker_role": by_chunk.get(chunk["chunk_id"], {}).get("speaker_role", "UNKNOWN"),
                  "role_review_id": by_chunk.get(chunk["chunk_id"], {}).get("review_id"),
                  "availability_mode": "LIVE_STRICT", "publication_allowed": False}
