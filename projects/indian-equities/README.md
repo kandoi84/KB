@@ -216,3 +216,37 @@ rechecks source bytes before returning an ISIN. The reviewer must inspect the
 named evidence row; the runtime cannot infer identity from the file alone.
 The example dates are illustrative; enter verified dates from the actual
 exchange source.
+
+## Register and query filing metrics
+
+After `record-source` and `register-identity`, create one JSON request per
+reviewed filing. The recorded source must have `source_kind: EXCHANGE_FILING`,
+`entity` equal to the issuer ID, and observation time no later than retrieval.
+The request needs these exact filing fields: `filing_id`, `issuer_id`,
+`isin`, `source_id`, `version_id`, `document_type`, `period_end`,
+`published_at`, `first_seen_at`, `rights_status`, `reviewer_id`,
+`reviewed_at`, `review_decision`, `evidence_locator`,
+`supersedes_filing_id`, and a nonempty `metrics` list. Set `rights_status` to
+`REVIEWED` and `review_decision` to `CONFIRMED` only after manual review.
+Each metric needs `metric_id`, `metric_name`, `value_decimal` as a plain
+decimal string, `unit`, `period_end`, `period_kind`, `reporting_scope`,
+`value_kind`, `evidence_locator`, and `supersedes_metric_id`. Use `null` for
+no predecessor. The supported value kinds are `REPORTED` and `GUIDANCE`;
+units are `INR`, `INR_LAKH`, `INR_CRORE`, `PERCENT`, `SHARES`, `COUNT`, and
+`RATIO`. Period kinds are `FY`, `QUARTER`, and `YTD`; reporting scope is
+`CONSOLIDATED` or `STANDALONE`.
+
+```sh
+python3 -m src.kb_runtime register-filing-metrics --request path/to/filing.json
+python3 -m src.kb_runtime query-metrics --isin INE062A01020 \
+  --metric-name revenue --period-end 2026-06-30 \
+  --cutoff 2026-09-28T18:00:00+05:30
+```
+
+The query uses strict live replay: filing publication, KB first-seen, and
+review times must all pass the cutoff. It rechecks the raw source and identity
+files. A later restatement appends a revision; an older cutoff still returns
+the earlier metric. A metric's `period_end` can precede its filing's period
+for a reported comparison, but the metric is never available before the
+filing. Historical reconstruction of later backfills needs a separate
+archive and identity proof contract. This command does not publish research.

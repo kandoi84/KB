@@ -6,6 +6,7 @@ from pathlib import Path
 from .claim_lineage import evaluate_claims
 from .evidence_refresh import refresh_evidence
 from .identity_store import register_identity, resolve_symbol
+from .metric_store import query_metrics, register_filing_metrics
 from .passage_evidence import evaluate_passages
 from .source_refresh import evaluate_sources
 from .source_store import record_source
@@ -67,6 +68,19 @@ def main():
     symbol.add_argument("--symbol", required=True)
     symbol.add_argument("--effective-date", required=True)
     symbol.add_argument("--cutoff", required=True)
+    filing = subparsers.add_parser("register-filing-metrics", help="Register reviewed filing metrics")
+    filing.add_argument("--request", type=Path, required=True)
+    filing.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    filing.add_argument("--catalog", type=Path,
+                        default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    metric_query = subparsers.add_parser("query-metrics", help="Read metrics at a strict live cutoff")
+    metric_query.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    metric_query.add_argument("--catalog", type=Path,
+                              default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    metric_query.add_argument("--isin", required=True)
+    metric_query.add_argument("--metric-name", required=True)
+    metric_query.add_argument("--period-end", required=True)
+    metric_query.add_argument("--cutoff", required=True)
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -98,6 +112,11 @@ def main():
                 args.catalog, args.project_dir, args.exchange, args.symbol,
                 args.effective_date, args.cutoff
             )}
+        elif args.command == "register-filing-metrics":
+            result = register_filing_metrics(args.request, args.project_dir, args.catalog)
+        elif args.command == "query-metrics":
+            result = {"metrics": query_metrics(args.catalog, args.project_dir, args.isin,
+                                                args.metric_name, args.period_end, args.cutoff)}
         elif args.command == "refresh-evidence":
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,

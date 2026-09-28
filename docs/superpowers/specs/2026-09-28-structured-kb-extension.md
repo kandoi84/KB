@@ -14,22 +14,32 @@ have several securities. Symbols are dated aliases, never primary keys.
 
 `period_end` describes the accounts. `published_at` describes when the exchange
 made the filing public. `first_seen_at` describes when this KB acquired it.
-Both timestamps must be at or before a query cutoff; unknown publication time
-blocks historical use. Revisions append new records and point to the prior
-version. A later restatement never replaces an earlier observation.
+Live replay requires both timestamps at or before the cutoff. A later
+historical reconstruction slice may use a backfill only when reviewed,
+version-specific exchange archive and identity receipts prove that the exact
+filing and ISIN relationship were public by the cutoff; the result is labelled
+`BACKFILLED` and evaluated separately. Unknown
+publication time blocks both modes. Revisions append new records and point to
+the prior version. A later restatement never replaces an earlier observation.
 
 ## Core schema proposal (SQLite)
 
-This is the contract for 04A–04B, not an active migration. All timestamps use
-timezone-aware ISO 8601 text normalized to UTC before insert. Decimal values
+This sketches the active 04A–04B catalog and proposed 04C chunk table; the
+runtime schema in `identity_store.py` and `metric_store.py` is authoritative.
+All timestamps use timezone-aware ISO 8601 text normalized to UTC before insert. Decimal values
 are canonical strings and are parsed with Python `Decimal` for calculations.
 
 ```sql
 CREATE TABLE companies (
   issuer_id TEXT PRIMARY KEY,
   legal_name TEXT NOT NULL,
-  sector TEXT,
-  created_at TEXT NOT NULL
+  source_id TEXT NOT NULL,
+  version_id TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  reviewer_id TEXT NOT NULL,
+  reviewed_at TEXT NOT NULL,
+  review_decision TEXT NOT NULL,
+  evidence_locator TEXT NOT NULL
 );
 CREATE TABLE securities (
   isin TEXT PRIMARY KEY,
@@ -39,7 +49,12 @@ CREATE TABLE securities (
   listed_to TEXT,
   announced_at TEXT NOT NULL,
   first_seen_at TEXT NOT NULL,
-  source_version_id TEXT NOT NULL
+  source_id TEXT NOT NULL,
+  version_id TEXT NOT NULL,
+  reviewer_id TEXT NOT NULL,
+  reviewed_at TEXT NOT NULL,
+  review_decision TEXT NOT NULL,
+  evidence_locator TEXT NOT NULL
 );
 CREATE TABLE symbol_history (
   exchange TEXT NOT NULL,
@@ -49,23 +64,31 @@ CREATE TABLE symbol_history (
   valid_to TEXT,
   announced_at TEXT NOT NULL,
   first_seen_at TEXT NOT NULL,
-  source_version_id TEXT NOT NULL,
+  source_id TEXT NOT NULL,
+  version_id TEXT NOT NULL,
+  reviewer_id TEXT NOT NULL,
+  reviewed_at TEXT NOT NULL,
+  review_decision TEXT NOT NULL,
+  evidence_locator TEXT NOT NULL,
   PRIMARY KEY (exchange, symbol, valid_from)
 );
 CREATE TABLE filings (
   filing_id TEXT PRIMARY KEY,
   issuer_id TEXT NOT NULL REFERENCES companies(issuer_id),
-  isin TEXT REFERENCES securities(isin),
+  isin TEXT NOT NULL REFERENCES securities(isin),
   source_id TEXT NOT NULL,
-  source_version_id TEXT NOT NULL UNIQUE,
+  version_id TEXT NOT NULL UNIQUE,
   raw_sha256 TEXT NOT NULL,
   document_type TEXT NOT NULL,
   period_end TEXT,
   published_at TEXT NOT NULL,
   first_seen_at TEXT NOT NULL,
-  supersedes_filing_id TEXT REFERENCES filings(filing_id),
+  supersedes_filing_id TEXT UNIQUE REFERENCES filings(filing_id),
   rights_status TEXT NOT NULL,
-  CHECK (rights_status IN ('REVIEWED', 'UNKNOWN', 'BLOCKED'))
+  reviewer_id TEXT NOT NULL,
+  reviewed_at TEXT NOT NULL,
+  review_decision TEXT NOT NULL,
+  evidence_locator TEXT NOT NULL
 );
 CREATE TABLE chunks (
   chunk_id TEXT PRIMARY KEY,
@@ -88,15 +111,15 @@ CREATE TABLE metrics (
   value_decimal TEXT NOT NULL,
   unit TEXT NOT NULL,
   period_end TEXT NOT NULL,
-  published_at TEXT NOT NULL,
-  first_seen_at TEXT NOT NULL,
   filing_id TEXT NOT NULL REFERENCES filings(filing_id),
-  source_chunk_id TEXT REFERENCES chunks(chunk_id),
   value_kind TEXT NOT NULL,
-  supersedes_metric_id TEXT REFERENCES metrics(metric_id),
+  reporting_scope TEXT NOT NULL,
+  period_kind TEXT NOT NULL,
+  evidence_locator TEXT NOT NULL,
+  supersedes_metric_id TEXT UNIQUE REFERENCES metrics(metric_id),
   CHECK (value_kind IN ('REPORTED', 'GUIDANCE'))
 );
-CREATE INDEX metrics_cutoff ON metrics(isin, metric_name, period_end, published_at, first_seen_at);
+CREATE INDEX metrics_series ON metrics(isin, metric_name, period_end);
 CREATE INDEX filings_cutoff ON filings(issuer_id, published_at, first_seen_at);
 ```
 
@@ -105,15 +128,24 @@ filings. Consensus, assumptions, derived values, and prices need their own
 typed origin contracts; they must not masquerade as exchange filings. One
 `filings` row represents one raw document version. A bundle or attachment set
 is split into distinct stored documents before registration.
+Metrics inherit availability timestamps from their filing. Their own period
+may be a prior comparative period. Chunks remain a proposed later table.
+04B accepts only a source version recorded as `EXCHANGE_FILING`, with matching
+issuer and observation no later than retrieval or first-seen time. Manual
+review asserts the exchange publication timestamp and named evidence locator.
 
 The write API validates ISIN check digits, UTC timestamps, source hashes,
 nonoverlapping symbol ranges, foreign keys, and revision links. Database
 triggers reject `UPDATE` and `DELETE` on evidence rows. A revised metric must
 match ISIN, metric, period, and unit of its predecessor; cycles and ambiguous
-revision branches fail. The cutoff reader selects only rows
-with both `published_at <= cutoff` and `first_seen_at <= cutoff`, then chooses
-the latest eligible revision. A filing with only a calendar date needs a
-conservative availability timestamp or remains ineligible intraday.
+revision branches fail. The live cutoff reader selects only rows with both
+`published_at <= cutoff` and `first_seen_at <= cutoff`. Historical
+reconstruction requires a separate reviewed archive and identity receipt
+contract before it can select later-ingested rows. Each mode chooses the
+latest eligible revision within one metric series. Backfilled results carry
+a distinct label and never appear in strict live replay. A
+filing with only a calendar date needs a conservative availability timestamp
+or remains ineligible intraday.
 Security and symbol resolution also requires `announced_at` and
 `first_seen_at` at or before cutoff; mergers and demergers with ambiguous
 identity block until reviewed. Legacy records without availability time
