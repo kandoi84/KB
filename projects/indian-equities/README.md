@@ -22,9 +22,10 @@ Do not store secrets or large licensed raw datasets in Git.
   `state/`: generated local files.
 
 This directory is the single Indian Equities project within `~/code/kb`.
-The older generic KB templates and connector experiments in `~/code/codex-work/`
-remain separate because they are different projects. The imported Library
-documents have not been changed to match the newer runtime code.
+The older generic KB shell now lives in `../research-journal/` as a separate
+project within this repository. Connector experiments in `~/code/codex-work/`
+remain separate because they are a distinct model-router design. The imported
+Library documents have not been changed to match the newer runtime code.
 
 ## First runtime slice
 
