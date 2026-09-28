@@ -1,6 +1,6 @@
 # Structured Indian equities KB extension
 
-Date: 2026-09-28. Status: design for mini specs 04A–04E.
+Date: 2026-09-28. Status: 04A–04B active; 04C plain-text slice active; later adapters planned.
 
 ## Decision
 
@@ -24,8 +24,8 @@ the prior version. A later restatement never replaces an earlier observation.
 
 ## Core schema proposal (SQLite)
 
-This sketches the active 04A–04B catalog and proposed 04C chunk table; the
-runtime schema in `identity_store.py` and `metric_store.py` is authoritative.
+This sketches the active catalog; the runtime schema in `identity_store.py`,
+`metric_store.py`, and `text_chunks.py` is authoritative.
 All timestamps use timezone-aware ISO 8601 text normalized to UTC before insert. Decimal values
 are canonical strings and are parsed with Python `Decimal` for calculations.
 
@@ -90,19 +90,28 @@ CREATE TABLE filings (
   review_decision TEXT NOT NULL,
   evidence_locator TEXT NOT NULL
 );
-CREATE TABLE chunks (
-  chunk_id TEXT PRIMARY KEY,
+CREATE TABLE text_extractions (
   filing_id TEXT NOT NULL REFERENCES filings(filing_id),
   parser_version TEXT NOT NULL,
+  source_id TEXT NOT NULL,
+  version_id TEXT NOT NULL,
+  raw_sha256 TEXT NOT NULL,
+  chunk_count INTEGER NOT NULL,
+  PRIMARY KEY (filing_id, parser_version)
+);
+CREATE TABLE text_chunks (
+  chunk_id TEXT PRIMARY KEY,
+  filing_id TEXT NOT NULL,
+  parser_version TEXT NOT NULL,
+  chunk_index INTEGER NOT NULL,
+  byte_start INTEGER NOT NULL,
+  byte_end INTEGER NOT NULL,
   text_sha256 TEXT NOT NULL,
   text TEXT NOT NULL,
   page_number INTEGER,
-  byte_start INTEGER,
-  byte_end INTEGER,
-  quarter TEXT,
-  speaker_role TEXT,
-  derived_context TEXT,
-  context_version TEXT
+  speaker_role TEXT NOT NULL,
+  FOREIGN KEY (filing_id, parser_version)
+    REFERENCES text_extractions(filing_id, parser_version)
 );
 CREATE TABLE metrics (
   metric_id TEXT PRIMARY KEY,
@@ -129,7 +138,11 @@ typed origin contracts; they must not masquerade as exchange filings. One
 `filings` row represents one raw document version. A bundle or attachment set
 is split into distinct stored documents before registration.
 Metrics inherit availability timestamps from their filing. Their own period
-may be a prior comparative period. Chunks remain a proposed later table.
+may be a prior comparative period. Plain UTF-8 chunks use exact raw byte
+spans, a fixed 2048-byte maximum, and `UNKNOWN` speaker role. This parser
+does not infer transcript speaker roles or PDF page numbers. PDF and binary
+input are blocked pending a page-aware parser and review contract. Derived
+context is not part of source text or chunk identity.
 04B accepts only a source version recorded as `EXCHANGE_FILING`, with matching
 issuer and observation no later than retrieval or first-seen time. Manual
 review asserts the exchange publication timestamp and named evidence locator.

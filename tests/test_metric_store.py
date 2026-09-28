@@ -76,6 +76,33 @@ def test_registers_atomic_reviewed_filing_and_metric(tmp_path):
             db.execute("UPDATE metrics SET value_decimal='99' WHERE metric_id='M1'")
 
 
+def test_transcript_filing_can_register_without_metrics(tmp_path):
+    from src.kb_runtime.metric_store import register_filing, register_filing_metrics
+
+    project, catalog, path, request = _setup(tmp_path)
+    request["document_type"] = "CONCALL_TRANSCRIPT"
+    request["metrics"] = []
+    with pytest.raises(ValueError, match="metrics"):
+        register_filing_metrics(_write(path, request), project, catalog)
+    result = register_filing(path, project, catalog)
+    assert result == {"filing_id": "F1", "metric_ids": [], "publication_allowed": False}
+    assert register_filing(path, project, catalog) == result
+    with sqlite3.connect(catalog) as db:
+        assert db.execute("SELECT count(*) FROM filings").fetchone()[0] == 1
+        assert db.execute("SELECT count(*) FROM metrics").fetchone()[0] == 0
+
+
+def test_filing_only_path_rejects_metrics_and_results(tmp_path):
+    from src.kb_runtime.metric_store import register_filing
+
+    project, catalog, path, request = _setup(tmp_path)
+    with pytest.raises(ValueError, match="metrics"):
+        register_filing(_write(path, request), project, catalog)
+    request["metrics"] = []
+    with pytest.raises(ValueError, match="document_type"):
+        register_filing(_write(path, request), project, catalog)
+
+
 def test_rejects_wrong_issuer_and_damaged_source_without_partial_write(tmp_path):
     from src.kb_runtime.metric_store import register_filing_metrics
 
@@ -267,3 +294,43 @@ def test_filing_metric_cli_returns_strict_json(tmp_path):
     ], capture_output=True, text=True)
     assert queried.returncode == 0, queried.stderr
     assert [row["metric_id"] for row in json.loads(queried.stdout)["metrics"]] == ["M1"]
+
+
+def test_filing_only_cli_registers_transcript(tmp_path):
+    project, catalog, path, request = _setup(tmp_path)
+    request["document_type"] = "CONCALL_TRANSCRIPT"
+    request["metrics"] = []
+    _write(path, request)
+    result = subprocess.run([
+        sys.executable, "-m", "src.kb_runtime", "register-filing",
+        "--request", str(path), "--project-dir", str(project), "--catalog", str(catalog),
+    ], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {
+        "filing_id": "F1", "metric_ids": [], "publication_allowed": False,
+    }
+
+
+def test_text_chunk_cli_extracts_and_queries_strictly(tmp_path):
+    project, catalog, path, request = _setup(tmp_path)
+    request["document_type"] = "CONCALL_TRANSCRIPT"
+    request["metrics"] = []
+    _write(path, request)
+    registered = subprocess.run([
+        sys.executable, "-m", "src.kb_runtime", "register-filing",
+        "--request", str(path), "--project-dir", str(project), "--catalog", str(catalog),
+    ], capture_output=True, text=True)
+    assert registered.returncode == 0, registered.stderr
+    extracted = subprocess.run([
+        sys.executable, "-m", "src.kb_runtime", "extract-text-filing",
+        "--filing-id", "F1", "--project-dir", str(project), "--catalog", str(catalog),
+    ], capture_output=True, text=True)
+    assert extracted.returncode == 0, extracted.stderr
+    chunk_ids = json.loads(extracted.stdout)["chunk_ids"]
+    queried = subprocess.run([
+        sys.executable, "-m", "src.kb_runtime", "query-text-chunks",
+        "--filing-id", "F1", "--cutoff", "2026-09-28T09:03:00+05:30",
+        "--project-dir", str(project), "--catalog", str(catalog),
+    ], capture_output=True, text=True)
+    assert queried.returncode == 0, queried.stderr
+    assert [row["chunk_id"] for row in json.loads(queried.stdout)["chunks"]] == chunk_ids

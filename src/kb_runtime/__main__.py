@@ -6,10 +6,11 @@ from pathlib import Path
 from .claim_lineage import evaluate_claims
 from .evidence_refresh import refresh_evidence
 from .identity_store import register_identity, resolve_symbol
-from .metric_store import query_metrics, register_filing_metrics
+from .metric_store import query_metrics, register_filing, register_filing_metrics
 from .passage_evidence import evaluate_passages
 from .source_refresh import evaluate_sources
 from .source_store import record_source
+from .text_chunks import extract_text_filing, query_text_chunks
 from .workflow import run_company_research
 
 
@@ -73,6 +74,11 @@ def main():
     filing.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     filing.add_argument("--catalog", type=Path,
                         default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    filing_only = subparsers.add_parser("register-filing", help="Register a reviewed filing without metrics")
+    filing_only.add_argument("--request", type=Path, required=True)
+    filing_only.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    filing_only.add_argument("--catalog", type=Path,
+                             default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     metric_query = subparsers.add_parser("query-metrics", help="Read metrics at a strict live cutoff")
     metric_query.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     metric_query.add_argument("--catalog", type=Path,
@@ -81,6 +87,17 @@ def main():
     metric_query.add_argument("--metric-name", required=True)
     metric_query.add_argument("--period-end", required=True)
     metric_query.add_argument("--cutoff", required=True)
+    extract = subparsers.add_parser("extract-text-filing", help="Chunk a reviewed plain UTF-8 filing")
+    extract.add_argument("--filing-id", required=True)
+    extract.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    extract.add_argument("--catalog", type=Path,
+                         default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    chunk_query = subparsers.add_parser("query-text-chunks", help="Read cited text chunks at a strict cutoff")
+    chunk_query.add_argument("--filing-id", required=True)
+    chunk_query.add_argument("--cutoff", required=True)
+    chunk_query.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    chunk_query.add_argument("--catalog", type=Path,
+                             default=Path("projects/indian-equities/data/registry/identity.sqlite"))
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -114,9 +131,16 @@ def main():
             )}
         elif args.command == "register-filing-metrics":
             result = register_filing_metrics(args.request, args.project_dir, args.catalog)
+        elif args.command == "register-filing":
+            result = register_filing(args.request, args.project_dir, args.catalog)
         elif args.command == "query-metrics":
             result = {"metrics": query_metrics(args.catalog, args.project_dir, args.isin,
                                                 args.metric_name, args.period_end, args.cutoff)}
+        elif args.command == "extract-text-filing":
+            result = extract_text_filing(args.catalog, args.project_dir, args.filing_id)
+        elif args.command == "query-text-chunks":
+            result = {"chunks": query_text_chunks(args.catalog, args.project_dir,
+                                                   args.filing_id, args.cutoff)}
         elif args.command == "refresh-evidence":
             result = refresh_evidence(
                 args.source_request, args.claims, args.project_dir, args.state_dir,

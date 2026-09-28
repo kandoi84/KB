@@ -57,7 +57,7 @@ def _decimal(value):
     return value.rstrip("0").rstrip(".") if "." in value else value
 
 
-def _request(path):
+def _request(path, filing_only=False):
     try:
         value = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
@@ -82,7 +82,14 @@ def _request(path):
     _label(value["evidence_locator"], "evidence_locator")
     if value["supersedes_filing_id"] is not None:
         _id(value["supersedes_filing_id"], "supersedes_filing_id")
-    if not isinstance(value["metrics"], list) or not value["metrics"]:
+    if not isinstance(value["metrics"], list):
+        raise ValueError("metrics must be a list")
+    if filing_only:
+        if value["metrics"]:
+            raise ValueError("filing-only request cannot include metrics")
+        if value["document_type"] == "RESULTS":
+            raise ValueError("RESULTS document_type requires metrics")
+    elif not value["metrics"]:
         raise ValueError("metrics must be nonempty")
     ids = set()
     series = set()
@@ -184,9 +191,8 @@ def _insert_or_match(db, table, key, row):
     return True
 
 
-def register_filing_metrics(request_path: Path, project_dir: Path, catalog_path: Path) -> dict:
-    """Atomically add a reviewed filing and its reported or guidance metrics."""
-    request = _request(request_path)
+def _register(request_path: Path, project_dir: Path, catalog_path: Path, filing_only: bool) -> dict:
+    request = _request(request_path, filing_only=filing_only)
     digest = _filing_source(request, project_dir)
     with closing(_connect(catalog_path)) as db:
         _tables(db)
@@ -237,6 +243,16 @@ def register_filing_metrics(request_path: Path, project_dir: Path, catalog_path:
                 _insert_or_match(db, "metrics", "metric_id", row)
     return {"filing_id": filing["filing_id"], "metric_ids": [m["metric_id"] for m in request["metrics"]],
             "publication_allowed": False}
+
+
+def register_filing_metrics(request_path: Path, project_dir: Path, catalog_path: Path) -> dict:
+    """Atomically add a reviewed filing and its reported or guidance metrics."""
+    return _register(request_path, project_dir, catalog_path, filing_only=False)
+
+
+def register_filing(request_path: Path, project_dir: Path, catalog_path: Path) -> dict:
+    """Add a reviewed filing that has no typed metrics, such as a transcript."""
+    return _register(request_path, project_dir, catalog_path, filing_only=True)
 
 
 def query_metrics(catalog_path: Path, project_dir: Path, isin: str, metric_name: str,

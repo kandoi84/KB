@@ -62,7 +62,8 @@ owned by another session.
 | 04 | Passage evidence packet | Active, meaning open | A supplied verbatim quote is checked against the exact raw version when text is supported. Unsupported or absent text stays open. Presence never means semantic approval. |
 | 04A | Issuer and security identity | Active, caller-reviewed mapping | Company research uses issuer ID; listed security uses ISIN. Exchange symbols are dated aliases and ambiguous matches block. Existing source versions remain readable. |
 | 04B | Point-in-time typed metrics | Active, strict live replay | Reviewed reported and guidance revisions bind ISIN, full metric series, source version, and filing availability. Cutoff queries never see later revisions; publication remains blocked. |
-| 04C | Filing and transcript extraction | Planned | Versioned parser produces cited chunks with document type, quarter, page/offset and speaker role when known. Failed extraction stays blocked; derived context never alters raw evidence. |
+| 04C | Filing and transcript extraction | Active, plain UTF-8 slice | Filing-only registration and versioned plain-text parser produce immutable chunks with exact raw byte offsets and `UNKNOWN` role. Binary/PDF input stays blocked. |
+| 04C2 | PDF pages and reviewed speaker roles | Planned | A tested parser stores page-mapped derived text separately from raw PDF; reviewed role spans and parser errors are explicit. Failed or ambiguous extraction stays blocked. Derived context never alters evidence text. |
 | 04D | Filtered retrieval | Planned | Retrieval filters by issuer/security, document type and cutoff; returns immutable chunk IDs. Typed metrics are the authority for numeric answers. |
 | 04E | Retrieval and answer evals | Planned | A 30–50 question gold set includes answerable, missing, revised, contradictory and future-cutoff cases. Parser/index changes run recall, citation and abstention checks. |
 | 04F | Historical backfill reconstruction | Planned | Reviewed exchange archive and ISIN identity receipts bind exact source versions to past availability; backfilled results are labelled and evaluated separately from live replay. |
@@ -91,7 +92,7 @@ owned by another session.
 
 ## Execution order
 
-Build 04 and the 04A–04F storage and retrieval path, then 05. Activate
+Build 04 and the 04A–04F storage and retrieval path, including 04C2, then 05. Activate
 dependency and skill contracts in 06, then add audited gap adapters in 07.
 Add 08 only after those inputs are controlled.
 Wire 09 only after the evidence and analysis validators

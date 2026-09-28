@@ -250,3 +250,29 @@ the earlier metric. A metric's `period_end` can precede its filing's period
 for a reported comparison, but the metric is never available before the
 filing. Historical reconstruction of later backfills needs a separate
 archive and identity proof contract. This command does not publish research.
+
+For a reviewed transcript, presentation, annual report, or announcement with
+no typed metrics, use the same filing request shape with `metrics: []` and run:
+
+```sh
+python3 -m src.kb_runtime register-filing --request path/to/filing.json
+```
+
+The filing-only command rejects a `RESULTS` document or a nonempty metrics
+list. It applies the same source, ISIN, rights, review, and revision checks.
+
+For a reviewed plain UTF-8 filing, extract cited text chunks and read them at
+a cutoff:
+
+```sh
+python3 -m src.kb_runtime extract-text-filing --filing-id F1
+python3 -m src.kb_runtime query-text-chunks --filing-id F1 \
+  --cutoff 2026-09-28T18:00:00+05:30
+```
+
+Each chunk has an immutable ID, source version, exact raw byte span, and text
+hash. The reader rechecks the raw file, identity, review time, and spans.
+Speaker role is `UNKNOWN` and page number is empty for this plain-text parser.
+It does not guess who spoke. PDF, binary, empty, or oversized input is blocked;
+a separate page-aware PDF parser and reviewed speaker labels are still needed.
+These chunks are evidence candidates, not approved research claims.
