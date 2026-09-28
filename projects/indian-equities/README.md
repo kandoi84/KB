@@ -44,3 +44,20 @@ It validates a supplied test snapshot and opens a frozen case only after the
 snapshot passes its current structural checks. Real research publication is
 blocked until source and integrity validation are implemented. See
 `docs/architecture/REPO_RUNTIME_ASSESSMENT_2026-09-28.md` at the repository root.
+
+## Record a source update
+
+Create a JSON metadata file with these exact fields: `source_id`, `entity`,
+`source_kind`, `url`, `source_date` (YYYY-MM-DD), `observed_at`, and
+`retrieved_at` (ISO timestamps with timezone offsets). Then run:
+
+```sh
+python3 -m src.kb_runtime record-source \
+  --metadata path/to/source.json --raw-file path/to/downloaded-file
+```
+
+The command writes the raw bytes under ignored `data/raw/sha256/` and one
+version record under tracked `data/registry/sources/`. It returns the source
+ID, version ID, and raw SHA-256 hash. Repeating the same input returns the
+same version. The source register is an update trail, not approval of the
+source or its claims. See `GOVERNANCE/INGESTION_POLICY.md` for the rules.
