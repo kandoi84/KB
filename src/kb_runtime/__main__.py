@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .claim_lineage import evaluate_claims
 from .evidence_refresh import refresh_evidence
+from .passage_evidence import evaluate_passages
 from .source_refresh import evaluate_sources
 from .source_store import record_source
 from .workflow import run_company_research
@@ -43,6 +44,15 @@ def main():
         default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
     )
     claims.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    passages = subparsers.add_parser("evaluate-passages", help="Freeze exact quote presence for claims")
+    passages.add_argument("--packet", type=Path, required=True)
+    passages.add_argument("--claim-report", type=Path, required=True)
+    passages.add_argument("--run-id", required=True)
+    passages.add_argument(
+        "--project-dir", type=Path,
+        default=Path(__file__).resolve().parents[2] / "projects/indian-equities",
+    )
+    passages.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     evidence = subparsers.add_parser("refresh-evidence", help="Run source and claim checks together")
     evidence.add_argument("--source-request", type=Path, required=True)
     evidence.add_argument("--claims", type=Path, required=True)
@@ -62,6 +72,10 @@ def main():
         elif args.command == "evaluate-claims":
             result = evaluate_claims(
                 args.claims, args.source_report, args.project_dir, args.state_dir, args.run_id
+            )
+        elif args.command == "evaluate-passages":
+            result = evaluate_passages(
+                args.packet, args.claim_report, args.project_dir, args.state_dir, args.run_id
             )
         elif args.command == "refresh-evidence":
             result = refresh_evidence(

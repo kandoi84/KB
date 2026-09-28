@@ -152,3 +152,31 @@ evidence manifest under ignored `state/evidence_runs/`. It lists source
 version changes, claims to recheck, and open gaps. Repeating an unchanged
 run ID resumes the same result. `publication_allowed` stays false because
 passage, conflict, calculation, and rights checks are not yet complete.
+
+## Check supplied passage text
+
+Create a packet with the same entity and cutoff as a frozen claim report:
+
+```json
+{
+  "entity": "SBI",
+  "cutoff_timestamp": "2026-09-28T18:00:00+05:30",
+  "quotes": [{
+    "claim_id": "sbi-deposit-growth",
+    "verbatim_quote": "Deposits grew"
+  }]
+}
+```
+
+```sh
+python3 -m src.kb_runtime evaluate-passages \
+  --packet path/to/passage-packet.json \
+  --claim-report projects/indian-equities/state/claim_runs/sbi-claims-001.json \
+  --run-id sbi-passages-001
+```
+
+The frozen report under ignored `state/passage_runs/` checks exact UTF-8
+quote bytes in the pinned raw source. Plain text up to 16 MiB is supported;
+PDF and binary files stay `UNSUPPORTED_FORMAT`. `QUOTE_PRESENT` proves byte
+presence only. Claim meaning stays `UNVERIFIED`, gaps remain open, and real
+publication stays blocked.

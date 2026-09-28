@@ -59,7 +59,7 @@ owned by another session.
 | 01 | Cutoff source readiness | Active | Selected version and freshness are frozen; missing, late, stale, or corrupt sources block. |
 | 02 | Claim lineage and gap ledger | Active, meaning open | Typed claims pin source version and raw hash; every claim has an open gap. |
 | 03 | Repeatable evidence refresh | Active | A run compares prior frozen reports, identifies affected claims, and cannot reuse an ID with changed inputs. |
-| 04 | Passage evidence packet | Next | A supplied verbatim quote is checked against the exact raw version when text is supported. Unsupported or absent text stays open. Presence never means semantic approval. |
+| 04 | Passage evidence packet | Active, meaning open | A supplied verbatim quote is checked against the exact raw version when text is supported. Unsupported or absent text stays open. Presence never means semantic approval. |
 | 05 | Claim integrity review | Planned | Review decisions bind claim, quote, source version, reviewer, and cutoff; rights, contradictions, calculation lineage, and assumption labels each have explicit blocked results. No silent gap closure. |
 | 06 | Dependency and skill contracts | Planned | A workflow DAG names required inputs and outputs, loads the selected skill contract, records execution, retries safe failures, and blocks dependents. A YAML file alone is not activation. |
 | 07 | Gap resolution | Planned | Only classified public primary gaps may trigger permitted source adapters. Attempts and reasons are frozen; internal or proprietary gaps remain human work. No narrative fill. |
