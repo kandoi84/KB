@@ -23,5 +23,7 @@ temp/
 outputs/*
 !outputs/.gitkeep
 
+state/
+
 data/raw/*
 !data/raw/.gitkeep
