@@ -266,6 +266,72 @@ old gap `OPEN`, and has `publication_allowed: false`. A recorded source needs
 a new cutoff refresh, passage check, and 05 claim review before it can support
 research.
 
+## Plan a source route and review evidence-workflow trust
+
+`plan-gap-route` freezes a decision for one open gap. Its activation JSON must
+declare `origin` as `SYNTHETIC_FIXTURE` or `REAL_OBSERVED`, contain the exact
+07 classification packet, and state why the existing local route cannot fill
+the gap. The [13 design spec](../../docs/superpowers/specs/2026-09-29-source-adapter-trust-design.md)
+lists the exact rights extension: endpoint, actor, method, frequency, storage,
+retention, purpose, limits, agreement reference, reviewer, and expiry. Review
+that scope against the actual agreement before creating a packet. The command
+checks frozen parents and writes only a route receipt:
+
+```sh
+python3 -m src.kb_runtime plan-gap-route \
+  --packet path/to/activation.json \
+  --claim-report path/to/claim-report.json \
+  --source-report path/to/source-report.json \
+  --source-request path/to/source-request.json \
+  --claims path/to/claims.json \
+  --route-id route-001
+```
+
+The route has `adapter_activation_allowed: false`, keeps the gap `OPEN`, and
+cannot fetch or publish. A caller's `REAL_OBSERVED` text becomes `UNVERIFIED`;
+it does not prove that a real gap exists. The sole executable acquisition path
+remains `attempt-gap` with a manually supplied local file and reviewed rights.
+
+After an attempt, an independent reviewer can freeze labels. The observation
+JSON declares `declared_origin` as `SYNTHETIC_FIXTURE` or `REAL_OBSERVED` and
+contains exact attempt ID, bytes hash when recorded, reviewer, time, rubric,
+period, failure class, and the five labels in
+[`tests/test_trust_observation.py`](../../tests/test_trust_observation.py).
+The reviewer must differ from the attempt operator and first reviewer:
+
+```sh
+python3 -m src.kb_runtime record-trust-observation \
+  --observation path/to/observation.json \
+  --classification-packet path/to/gap-classification.json \
+  --attempt-intent projects/indian-equities/state/gap_attempts/attempt-001/intent.json \
+  --attempt-result projects/indian-equities/state/gap_attempts/attempt-001/result.json
+
+python3 -m src.kb_runtime build-trust-report \
+  --observation-id obs-001 \
+  --report-id trust-001
+```
+
+Repeat `--observation-id` to select more receipts. An optional
+`--cohort-filter path/to/filter.json` accepts exact adapter, authority, type,
+period, status, or rights-policy fields. The report states the supplied
+population, exclusions, cohort splits, separate metric denominators, Wilson
+intervals, and failure counts. Its selection has no random seed; acquisition
+lag has no estimate; probability calibration is unavailable. Synthetic and
+unverified origins always yield `INSUFFICIENT_SAMPLE`, even with 30 attempts,
+five issuers, and two periods. These are workflow diagnostics and never feed
+investment scores or publication.
+
+As of 2026-09-29, this project has **zero observed real open gaps** in its
+runtime state; the state directory does not exist. No connector activation
+criterion is met. [NSE terms](https://www.nseindia.com/static/nse-terms-of-use)
+prohibit systematic automated collection from its website, and its
+[data policy](https://www.nseindia.com/static/market-data/nse-data-policy)
+requires separate rights review. BSE automated endpoint rights remain
+unverified. A public link, an open-source wrapper, or the
+[NSE MCP page](https://www.nseindia.com/nse-mcp) is not permission for this
+research workflow. Any later single-endpoint connector needs a separate
+rights and rate/error review; no network connector is included here.
+
 ## Freeze an internal analyst worksheet
 
 `analyze-judgment` checks a strict analyst packet against one frozen claim

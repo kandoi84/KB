@@ -18,8 +18,11 @@ from .passage_evidence import evaluate_passages
 from .pdf_chunks import extract_pdf_filing, query_pdf_chunks, review_pdf_role
 from .retrieval_eval import evaluate_retrieval
 from .source_refresh import evaluate_sources
+from .source_route import select_gap_route
 from .source_store import record_source
 from .text_chunks import extract_text_filing, query_text_chunks
+from .trust_observation import record_trust_observation
+from .trust_report import build_trust_report
 from .workflow import run_company_research
 
 
@@ -190,6 +193,26 @@ def main():
     gap.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
     gap.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     gap.add_argument("--attempt-id", required=True)
+    route = subparsers.add_parser("plan-gap-route", help="Freeze a non-fetching source route decision")
+    route.add_argument("--packet", type=Path, required=True)
+    route.add_argument("--claim-report", type=Path, required=True)
+    route.add_argument("--source-report", type=Path, required=True)
+    route.add_argument("--source-request", type=Path, required=True)
+    route.add_argument("--claims", type=Path, required=True)
+    route.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    route.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    route.add_argument("--route-id", required=True)
+    observation = subparsers.add_parser("record-trust-observation", help="Freeze an independent attempt label")
+    observation.add_argument("--observation", type=Path, required=True)
+    observation.add_argument("--classification-packet", type=Path, required=True)
+    observation.add_argument("--attempt-intent", type=Path, required=True)
+    observation.add_argument("--attempt-result", type=Path, required=True)
+    observation.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    trust = subparsers.add_parser("build-trust-report", help="Summarize diagnostic trust labels")
+    trust.add_argument("--observation-id", action="append", required=True)
+    trust.add_argument("--cohort-filter", type=Path, help="JSON object of exact cohort filters")
+    trust.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    trust.add_argument("--report-id", required=True)
     case = subparsers.add_parser("open-sandbox-case", help="Freeze a replay-verified internal case")
     for name in ("packet", "source-request", "claim-request", "passage-packet",
                  "review-packet", "workflow-contract", "claim-review-report",
@@ -283,6 +306,22 @@ def main():
                 args.source_request, args.claims, args.raw_file, args.metadata,
                 args.project_dir, args.state_dir, args.attempt_id,
             )
+        elif args.command == "plan-gap-route":
+            result = select_gap_route(
+                args.packet, args.claim_report, args.source_report,
+                args.source_request, args.claims, args.project_dir, args.state_dir,
+                args.route_id,
+            )
+        elif args.command == "record-trust-observation":
+            result = record_trust_observation(
+                args.observation, args.classification_packet, args.attempt_intent,
+                args.attempt_result, args.state_dir,
+            )
+        elif args.command == "build-trust-report":
+            cohort_filter = (json.loads(args.cohort_filter.read_text(encoding="utf-8"))
+                             if args.cohort_filter else {})
+            result = build_trust_report(args.observation_id, cohort_filter,
+                                        args.state_dir, args.report_id)
         elif args.command == "open-sandbox-case":
             result = open_sandbox_case(
                 args.packet, source_request=args.source_request,

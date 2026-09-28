@@ -2,7 +2,10 @@
 
 import json
 import hashlib
+import subprocess
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -14,6 +17,7 @@ from src.kb_runtime.trust_observation import record_trust_observation
 
 CUTOFF = "2026-09-28T18:00:00+05:30"
 URL = "https://www.bseindia.com/filings/sbi.pdf"
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def write(path, value):
@@ -231,3 +235,24 @@ def test_rehashed_non_exchange_host_cannot_default_to_bse(tmp_path):
     write(result_path, result)
     with pytest.raises(ValueError):
         call(data)
+
+
+def test_cli_records_blocked_observation_with_unverified_real_origin(tmp_path):
+    packet, state, observation, _ = fixture(tmp_path, "INTERNAL_RESEARCH")
+    row = json.loads(observation.read_text())
+    row["declared_origin"] = "REAL_OBSERVED"
+    row["labels"] = {key: "NOT_APPLICABLE" for key in row["labels"]}
+    row["failure_class"] = "HUMAN_WORK"
+    write(observation, row)
+    base = state / "gap_attempts/attempt-one"
+    completed = subprocess.run([
+        sys.executable, "-m", "src.kb_runtime", "record-trust-observation",
+        "--observation", str(observation), "--classification-packet", str(packet),
+        "--attempt-intent", str(base / "intent.json"),
+        "--attempt-result", str(base / "result.json"),
+        "--state-dir", str(state),
+    ], cwd=ROOT, text=True, capture_output=True)
+    assert completed.returncode == 0, completed.stderr
+    receipt = json.loads(completed.stdout)
+    assert receipt["origin"] == "UNVERIFIED"
+    assert receipt["publication_allowed"] is False

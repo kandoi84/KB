@@ -2,7 +2,10 @@
 
 import json
 import inspect
+import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -10,6 +13,9 @@ from src.kb_runtime.gap_attempt import _sealed
 from src.kb_runtime.trust_report import build_trust_report
 from src.kb_runtime import case_snapshot, historical_cohort, historical_score
 from test_trust_observation import call, fixture
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def observations(tmp_path, count=1):
@@ -189,3 +195,16 @@ def test_investment_entry_points_have_no_trust_report_dependency():
         code = inspect.getsource(module)
         assert "trust_report" not in code
         assert "trust_observations" not in code
+
+
+def test_cli_reports_insufficient_synthetic_sample(tmp_path):
+    state, ids = observations(tmp_path)
+    completed = subprocess.run([
+        sys.executable, "-m", "src.kb_runtime", "build-trust-report",
+        "--observation-id", ids[0], "--state-dir", str(state),
+        "--report-id", "cli-report",
+    ], cwd=ROOT, text=True, capture_output=True)
+    assert completed.returncode == 0, completed.stderr
+    report = json.loads(completed.stdout)
+    assert report["sample_status"] == "INSUFFICIENT_SAMPLE"
+    assert report["selection"]["population_scope"] == "PROVIDED_IDS_ONLY"

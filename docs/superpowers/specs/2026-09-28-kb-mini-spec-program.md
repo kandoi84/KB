@@ -75,7 +75,7 @@ owned by another session.
 | 10 | Outcome and postmortem loop | Sandbox active | Dated source-backed observations append idempotently to replayed cases. A due review records process/result classification and error taxonomy; reproducible bad process yields an unreviewed eval candidate. Real publication stays blocked. |
 | 11 | Change proposals and regressions | Planned | Proposed prompts, weights, schemas, and rules are versioned. Production stays on the old version until regression passes, and structural changes have explicit human approval. |
 | 12 | Historical evaluation and promotion | Planned | Point-in-time cases reveal outcomes only after frozen decisions; repeatability, look-ahead, ranking, calibration, drawdown, and simple baselines run with sample counts. The 50-to-5 gate follows `Framework/evals/EVAL_PLAN.md`. |
-| 13 | Source adapter expansion and trust calibration | Later | Free-first rights-aware adapters cover actual gaps. Trust metrics use sufficient samples and cannot alter investment scores until separately promoted. |
+| 13 | Source adapter expansion and trust calibration | Active, route and diagnostic slice only | Frozen plans and independently labeled local attempts expose rights scope, failures, denominators, and uncertainty. Observed real gaps: 0 on 2026-09-29. No HTTP connector, calibrated trust claim, investment-score input, or publication permission. |
 
 ## Cross-cutting checks
 

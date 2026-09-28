@@ -1,6 +1,8 @@
 """A route is a frozen decision, never a document acquisition."""
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,6 +13,7 @@ from src.kb_runtime.source_route import select_gap_route
 
 
 CUTOFF = "2026-09-28T18:00:00+05:30"
+ROOT = Path(__file__).resolve().parents[1]
 URL = "https://www.bseindia.com/filings/sbi.pdf"
 
 
@@ -100,6 +103,24 @@ def test_valid_missing_primary_plan_is_frozen_and_has_no_acquisition(tmp_path):
     assert (data[1] / "source_routes/route-one.json").exists()
     assert not (data[0] / "data").exists()
     assert not (data[1] / "gap_attempts").exists()
+
+
+def test_cli_plans_synthetic_local_route_without_acquisition(tmp_path):
+    project, state, packet, sources, claims = fixture(tmp_path)
+    command = [sys.executable, "-m", "src.kb_runtime", "plan-gap-route",
+               "--packet", str(packet),
+               "--claim-report", str(state / "claim_runs/claim-one.json"),
+               "--source-report", str(state / "refresh_runs/source-one.json"),
+               "--source-request", str(sources), "--claims", str(claims),
+               "--project-dir", str(project), "--state-dir", str(state),
+               "--route-id", "cli-route"]
+    completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+    assert completed.returncode == 0, completed.stderr
+    receipt = json.loads(completed.stdout)
+    assert receipt["status"] == "REVIEWED_LOCAL"
+    assert receipt["origin"] == "SYNTHETIC_FIXTURE"
+    assert receipt["adapter_activation_allowed"] is False
+    assert not (project / "data/registry/sources").exists()
 
 
 def test_stale_primary_plan_keeps_old_source_version_untouched(tmp_path):
