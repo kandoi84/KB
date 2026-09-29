@@ -21,7 +21,6 @@ class LiveScraper:
         try:
             ticker = Ticker(symbol)
             info = ticker.info
-            # ISIN is often not in .info for all tickers; use symbol as fallback
             isin = info.get("isin") or f"ISIN_{symbol}"
             return {
                 "symbol": symbol,
@@ -43,18 +42,24 @@ class LiveScraper:
             ticker = Ticker(symbol)
             df_income = ticker.financials
             
+            # Use company details to get ISIN for unique version IDs
+            details = self.get_company_details(symbol)
+            isin = details["isin"]
+            
             metrics = []
             if df_income is not None and not df_income.empty:
                 for metric_name, row in df_income.iterrows():
                     for period, value in row.items():
                         if pd.isna(value): continue
-                        filing_date = self._parse_period_to_date(period)
+                        
+                        parsed_date = self._parse_period_to_date(period)
+                        
                         metrics.append({
                             "metric_name": metric_name,
                             "value": float(value),
-                            "period_end": str(period),
-                            "filing_date": filing_date,
-                            "version_id": f"m_{metric_name}_{filing_date}"
+                            "period_end": parsed_date,
+                            "filing_date": parsed_date,
+                            "version_id": f"m_{isin}_{metric_name}_{parsed_date}"
                         })
             return metrics
         except Exception as e:
@@ -69,7 +74,6 @@ class LiveScraper:
             
             results = []
             for call in concalls:
-                # Handle both object and dict forms
                 pdf_url = getattr(call, 'pdf_url', None) if not isinstance(call, dict) else call.get('pdf_url')
                 date = getattr(call, 'date', None) if not isinstance(call, dict) else call.get('date')
                 quarter = getattr(call, 'quarter', None) if not isinstance(call, dict) else call.get('quarter')
@@ -89,11 +93,33 @@ class LiveScraper:
             return []
 
     def _parse_period_to_date(self, period: Any) -> str:
-        """Converts period (Datetime or string) to YYYY-MM-DD."""
-        try:
-            return pd.to_datetime(period).strftime("%Y-%m-%d")
-        except:
+        """
+        Robust conversion of period (Datetime, 'Mar 2015', 'FY24', etc.) to YYYY-MM-DD.
+        DuckDB requires strict YYYY-MM-DD for DATE columns.
+        """
+        if period is None:
             return datetime.now().strftime("%Y-%m-%d")
+            
+        if hasattr(period, 'strftime'):
+            return period.strftime("%Y-%m-%d")
+            
+        period_str = str(period).strip()
+        
+        try:
+            return pd.to_datetime(period_str).strftime("%Y-%m-%d")
+        except:
+            pass
+            
+        if "FY" in period_str.upper():
+            year_part = period_str.upper().replace("FY", "")
+            try:
+                year = int(year_part)
+                full_year = 2000 + year if year < 100 else year
+                return f"{full_year}-03-31"
+            except:
+                pass
+                
+        return datetime.now().strftime("%Y-%m-%d")
 
     def _download_file(self, url: str, folder: str) -> Optional[Path]:
         """Helper to download a file to the raw_data directory."""
