@@ -136,6 +136,9 @@ class LiveKBStorage:
         """
         Temporal RAG query: Search only chunks that existed before the as_of_date.
         """
+        if table_name not in self.vdb.table_names():
+            return pd.DataFrame()
+            
         table = self.vdb.open_table(table_name)
         return table.search(query_vector).where(f"isin = '{isin}' AND filing_date <= '{as_of_date}'").limit(limit).to_pandas()
 
