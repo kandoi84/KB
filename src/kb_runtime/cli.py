@@ -13,10 +13,28 @@ from typing import List, Optional
 from src.kb_runtime.live_storage import LiveKBStorage, Company, Metric
 from src.kb_runtime.live_ingestion import LiveIngestionEngine, IngestionConfig
 from src.kb_runtime.live_query import LiveQueryEngine
+from src.kb_runtime.thesis_wiki import ThesisWiki
 
 def cmd_update(args, storage: LiveKBStorage, engine: LiveIngestionEngine):
-    """Updates a company's KB with a new document and metrics."""
-    # AUTO-UPSERT Company to satisfy Foreign Key constraints
+    """Updates a company's KB."""
+    
+    # Case 1: Automated update from Symbol
+    if args.symbol:
+        print(f"Starting automated ingestion for {args.symbol}...")
+        success, logs = engine.ingest_from_symbol(args.symbol)
+        if not success:
+            print(f"Automated update FAILED for {args.symbol}")
+            for log in logs: print(f"  - {log}")
+            sys.exit(1)
+        print(f"Automated update SUCCESSFUL for {args.symbol}")
+        for log in logs: print(f"  - {log}")
+        return
+
+    # Case 2: Manual update from File
+    if not args.isin:
+        print("Error: Either --symbol or --isin must be provided")
+        sys.exit(1)
+        
     storage.upsert_company(Company(args.isin, "UNKNOWN", "UNKNOWN", "UNKNOWN"))
 
     metrics_to_record = []
@@ -37,8 +55,8 @@ def cmd_update(args, storage: LiveKBStorage, engine: LiveIngestionEngine):
             sys.exit(1)
 
     file_path = Path(args.file)
-    if not file_path.exists():
-        print(f"Error: File {file_path} not found")
+    if not file_path or not file_path.exists():
+        print("Error: --file is required for manual updates and must exist")
         sys.exit(1)
 
     version_id, success, logs = engine.ingest_document(
@@ -65,7 +83,6 @@ def cmd_query(args, storage: LiveKBStorage, query_engine: LiveQueryEngine):
     """Queries the KB for a company as-of a specific date."""
     import hashlib
     hash_val = int(hashlib.md5(args.query.encode()).hexdigest(), 16)
-    # Corrected binary operation to avoid int/float TypeError
     mock_vector = [((hash_val >> (i * 8)) & 0xFF) / 255.0 for i in range(1536)]
 
     print(f"--- Snapshot for {args.isin} as of {args.as_of} ---")
@@ -95,19 +112,39 @@ def cmd_audit(args, storage: LiveKBStorage, engine: LiveIngestionEngine):
         print(f"  Total filings: {filings[0]}")
         print(f"  Most recent filing: {filings[1]}")
 
+def cmd_wiki(args, wiki: ThesisWiki):
+    """Manages the analyst's thesis wiki."""
+    if args.wiki_action == "thesis":
+        wiki.update_thesis(args.isin, args.content)
+        print(f"Thesis updated for {args.isin}")
+    elif args.wiki_action == "note":
+        wiki.add_note(
+            isin=args.isin,
+            note_id=args.note_id,
+            content=args.content,
+            links=json.loads(args.links) if args.links else []
+        )
+        print(f"Note {args.note_id} added for {args.isin}")
+    elif args.wiki_action == "list":
+        notes = wiki.list_notes(args.isin)
+        print(f"Notes for {args.isin}:")
+        for n in notes:
+            print(f"  - {n.name}")
+
 def main():
     parser = argparse.ArgumentParser(description="Live KB Management CLI")
     parser.add_argument("--project-dir", default=".", help="Project root directory")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     upd = subparsers.add_parser("update")
-    upd.add_argument("--isin", required=True)
-    upd.add_argument("--file", required=True)
+    upd.add_argument("--symbol", help="Update automatically using company symbol (e.g. RELIANCE)")
+    upd.add_argument("--isin", help="Update manually using ISIN")
+    upd.add_argument("--file", help="Path to document file (Required if --isin used)")
     upd.add_argument("--doc-type", default="ANNUAL")
-    upd.add_argument("--filing-date", required=True)
-    upd.add_argument("--period-end", required=True)
+    upd.add_argument("--filing-date", help="Filing date YYYY-MM-DD")
+    upd.add_argument("--period-end", help="Period end date YYYY-MM-DD")
     upd.add_argument("--url", default="unknown")
-    upd.add_argument("--metrics", help="JSON list of metrics: [{'name': 'Revenue', 'value': 100, ...}]")
+    upd.add_argument("--metrics", help="JSON list of metrics")
 
     qry = subparsers.add_parser("query")
     qry.add_argument("--isin", required=True)
@@ -117,12 +154,20 @@ def main():
     aud = subparsers.add_parser("audit")
     aud.add_argument("--isin", required=True)
 
+    wiki = subparsers.add_parser("wiki")
+    wiki.add_argument("--isin", required=True)
+    wiki.add_argument("--wiki-action", choices=["thesis", "note", "list"], required=True)
+    wiki.add_argument("--content", help="Content for thesis or note")
+    wiki.add_argument("--note-id", help="ID for the note")
+    wiki.add_argument("--links", help="JSON list of version IDs for the note")
+
     args = parser.parse_args()
     
     root_dir = Path(args.project_dir)
     storage = LiveKBStorage(root_dir)
     engine = LiveIngestionEngine(storage)
     query_engine = LiveQueryEngine(storage)
+    wiki = ThesisWiki(root_dir)
 
     try:
         if args.command == "update":
@@ -131,6 +176,8 @@ def main():
             cmd_query(args, storage, query_engine)
         elif args.command == "audit":
             cmd_audit(args, storage, engine)
+        elif args.command == "wiki":
+            cmd_wiki(args, wiki)
     finally:
         storage.close()
 
