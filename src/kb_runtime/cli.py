@@ -13,6 +13,7 @@ from typing import List, Optional
 from src.kb_runtime.live_storage import LiveKBStorage, Company, Metric
 from src.kb_runtime.live_ingestion import LiveIngestionEngine, IngestionConfig
 from src.kb_runtime.live_query import LiveQueryEngine
+from src.kb_runtime.thesis_wiki import ThesisWiki
 
 def cmd_update(args, storage: LiveKBStorage, engine: LiveIngestionEngine):
     """Updates a company's KB with a new document and metrics."""
@@ -95,6 +96,25 @@ def cmd_audit(args, storage: LiveKBStorage, engine: LiveIngestionEngine):
         print(f"  Total filings: {filings[0]}")
         print(f"  Most recent filing: {filings[1]}")
 
+def cmd_wiki(args, wiki: ThesisWiki):
+    """Manages the analyst's thesis wiki."""
+    if args.wiki_action == "thesis":
+        wiki.update_thesis(args.isin, args.content)
+        print(f"Thesis updated for {args.isin}")
+    elif args.wiki_action == "note":
+        wiki.add_note(
+            isin=args.isin,
+            note_id=args.note_id,
+            content=args.content,
+            links=json.loads(args.links) if args.links else []
+        )
+        print(f"Note {args.note_id} added for {args.isin}")
+    elif args.wiki_action == "list":
+        notes = wiki.list_notes(args.isin)
+        print(f"Notes for {args.isin}:")
+        for n in notes:
+            print(f"  - {n.name}")
+
 def main():
     parser = argparse.ArgumentParser(description="Live KB Management CLI")
     parser.add_argument("--project-dir", default=".", help="Project root directory")
@@ -117,12 +137,20 @@ def main():
     aud = subparsers.add_parser("audit")
     aud.add_argument("--isin", required=True)
 
+    wiki = subparsers.add_parser("wiki")
+    wiki.add_argument("--isin", required=True)
+    wiki.add_argument("--wiki-action", choices=["thesis", "note", "list"], required=True)
+    wiki.add_argument("--content", help="Content for thesis or note")
+    wiki.add_argument("--note-id", help="ID for the note")
+    wiki.add_argument("--links", help="JSON list of version IDs for the note")
+
     args = parser.parse_args()
     
     root_dir = Path(args.project_dir)
     storage = LiveKBStorage(root_dir)
     engine = LiveIngestionEngine(storage)
     query_engine = LiveQueryEngine(storage)
+    wiki = ThesisWiki(root_dir)
 
     try:
         if args.command == "update":
@@ -131,6 +159,8 @@ def main():
             cmd_query(args, storage, query_engine)
         elif args.command == "audit":
             cmd_audit(args, storage, engine)
+        elif args.command == "wiki":
+            cmd_wiki(args, wiki)
     finally:
         storage.close()
 
