@@ -9,15 +9,18 @@ from test_case_snapshot import _fixture, _open, _write
 from src.kb_runtime.identity_store import _valid_isin
 
 
-def _setup(tmp_path, dataset_kind="REVIEWED_REAL"):
+def _setup(tmp_path, dataset_kind="REVIEWED_REAL",
+           *, opened_at="2026-09-29T01:00:00+05:30"):
     data = _fixture(tmp_path)
+    data[5]["opened_at"] = opened_at
+    _write(data[4], data[5])
     case = _open(data)
     project, state, catalog, paths, packet_path, _, _ = data
     manifest = {
         "cohort_id": "cohort-1", "dataset_kind": dataset_kind,
         "rubric_version": "rubric-v1", "quarter_cutoffs": [case["cutoff_timestamp"]],
         "universe_rule": "All eligible issuers fixed before scoring begins",
-        "reviewer_id": "reviewer-1", "reviewed_at": "2026-09-29T10:00:00+05:30",
+        "reviewer_id": "reviewer-1", "reviewed_at": "2026-09-29T02:00:00+05:30",
         "scorer_id": None, "scorer_source_sha256": None,
         "cases": [{"case_id": case["case_id"], "case_digest": case["case_digest"],
                    "isin": case["isin"], "cutoff_timestamp": case["cutoff_timestamp"],
@@ -107,6 +110,44 @@ def test_claimed_seal_after_reveal_is_rejected(tmp_path):
     }
     with pytest.raises(ValueError, match="seal|reveal"):
         _register(tmp_path, setup)
+
+
+def test_real_cohort_rejects_future_review_attestation(tmp_path):
+    setup = _setup(tmp_path)
+    setup[2]["reviewed_at"] = "2099-01-01T10:00:00+05:30"
+    with pytest.raises(ValueError, match="future|review"):
+        _register(tmp_path, setup)
+    assert not (setup[0][1] / "historical_evaluation/cohorts/cohort-1.json").exists()
+
+
+def test_real_cohort_rejects_future_seal_attestation(tmp_path):
+    setup = _setup(tmp_path)
+    setup[2]["cases"][0]["seal_proof"] = {
+        "provider_id": "seal-provider", "seal_id": "seal-1",
+        "case_digest": setup[1]["case_digest"],
+        "sealed_at": "2099-01-01T10:00:00+05:30",
+        "earliest_reveal_at": "2099-01-03T10:00:00+05:30",
+        "reviewer_id": "reviewer-1", "reviewed_at": "2099-01-02T10:00:00+05:30",
+        "evidence_sha256": "a" * 64,
+    }
+    with pytest.raises(ValueError, match="future|seal|review"):
+        _register(tmp_path, setup)
+    assert not (setup[0][1] / "historical_evaluation/cohorts/cohort-1.json").exists()
+
+
+def test_real_cohort_rejects_review_before_case_opening(tmp_path):
+    setup = _setup(tmp_path)
+    setup[2]["reviewed_at"] = "2026-09-28T20:00:00+05:30"
+    with pytest.raises(ValueError, match="review|opening"):
+        _register(tmp_path, setup)
+    assert not (setup[0][1] / "historical_evaluation/cohorts/cohort-1.json").exists()
+
+
+def test_real_cohort_rejects_future_case_opening(tmp_path):
+    setup = _setup(tmp_path, opened_at="2099-01-01T09:00:00+05:30")
+    with pytest.raises(ValueError, match="future|opening"):
+        _register(tmp_path, setup)
+    assert not (setup[0][1] / "historical_evaluation/cohorts/cohort-1.json").exists()
 
 
 def _isin(index):

@@ -5,7 +5,7 @@ import json
 import os
 import tempfile
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -63,7 +63,10 @@ def _manifest(value):
             or len(value["universe_rule"].strip()) < 12
             or len(value["universe_rule"]) > 1000):
         raise ValueError("cohort universe rule is invalid")
-    _time(value["reviewed_at"], "reviewed_at")
+    reviewed_at = _time(value["reviewed_at"], "reviewed_at")
+    now = datetime.now(timezone.utc)
+    if value["dataset_kind"] == "REVIEWED_REAL" and reviewed_at > now:
+        raise ValueError("cohort review attestation is in the future")
     scorer_id, scorer_sha = value["scorer_id"], value["scorer_source_sha256"]
     if (scorer_id is None) != (scorer_sha is None):
         raise ValueError("cohort scorer identity and hash must both be present")
@@ -109,6 +112,8 @@ def _manifest(value):
             reviewed = _time(proof["reviewed_at"], "seal reviewed_at")
             if sealed >= reveal or reviewed < sealed:
                 raise ValueError("seal must precede reveal and review")
+            if value["dataset_kind"] == "REVIEWED_REAL" and (sealed > now or reviewed > now):
+                raise ValueError("seal attestation is in the future")
     return value
 
 
@@ -180,6 +185,12 @@ def register_evaluation_cohort(manifest_path: Path, *, state_dir: Path,
                 or case["live_decision_allowed"] is not False
                 or case["promotion_status"] != "NOT_EVALUATED"):
             raise ValueError("cohort case digest, ISIN, cutoff, or safety differs")
+        if manifest["dataset_kind"] == "REVIEWED_REAL":
+            opened_at = _time(case["opened_at"], "case opened_at")
+            if opened_at > datetime.now(timezone.utc):
+                raise ValueError("real cohort case opening is in the future")
+            if _time(manifest["reviewed_at"], "reviewed_at") < opened_at:
+                raise ValueError("real cohort review precedes case opening")
         try:
             case_packet_sha = hashlib.sha256(Path(inputs["case_packet_path"]).read_bytes()).hexdigest()
         except OSError as exc:
