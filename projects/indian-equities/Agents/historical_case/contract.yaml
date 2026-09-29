@@ -1,0 +1,22 @@
+agent_id: historical_case
+version: '1.0'
+mission: Run point-in-time no-lookahead historical counterfactual analyses.
+reads:
+- snapshots/**
+- cases/historical/**
+- data/**
+writes:
+- cases/historical/**
+required_checks:
+- cutoff_frozen
+- lookahead_blocked
+- limitations_recorded
+- premortem_before_outcome
+prohibited_actions:
+- use_future_information
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

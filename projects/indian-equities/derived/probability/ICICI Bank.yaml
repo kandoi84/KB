@@ -1,0 +1,13 @@
+entity: ICICI Bank
+as_of: '2026-09-27'
+debates:
+- question: Mid/high-teens loan growth remains sustainable without material underwriting
+    deterioration
+  probability: 0.68
+  confidence: B
+- question: ROA remains >=2.2% over the next 4-6 quarters
+  probability: 0.72
+  confidence: B
+- question: NIM remains around 4%+ despite easing-rate transmission
+  probability: 0.67
+  confidence: B

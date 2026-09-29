@@ -1,0 +1,11 @@
+{
+  "skill_id": "passage_presence",
+  "version": 1,
+  "handler": "evaluate_passages",
+  "required_inputs": ["passage_packet", "claim_report"],
+  "output_type": "passage_report",
+  "entity_policy": "EXACT_RUN_ENTITY",
+  "cutoff_policy": "EXACT_RUN_CUTOFF",
+  "retry_policy": "REPLAY_IDEMPOTENT",
+  "publication_allowed": false
+}

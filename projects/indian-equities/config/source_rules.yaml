@@ -1,0 +1,6 @@
+version: '1.0'
+rules:
+  prefer_primary_for_material_fact: true
+  company_guidance_tier: 1
+  broker_research_tier: 2
+  tier4_fact_requires_verification: true

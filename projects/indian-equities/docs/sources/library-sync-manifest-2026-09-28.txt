@@ -1,0 +1,45 @@
+./Agents/AGENT_WORKPLAN.md
+./Agents/Banks/.gitkeep
+./Agents/Cement/.gitkeep
+./Agents/Consumer Staples/.gitkeep
+./Agents/Financials ex-Banks/.gitkeep
+./Agents/IT Services/.gitkeep
+./Agents/Industrials/.gitkeep
+./Agents/Pharma/.gitkeep
+./Agents/UNIVERSE_AGENT.md
+./Framework/README.md
+./Framework/SCORING_ENGINE.md
+./Framework/UNIVERSE_14.md
+./Framework/data/DATA_SCHEMA.md
+./Framework/data/MACRO_TRANSMISSION_AND_CONFIDENCE.md
+./Framework/data/SNAPSHOT_POLICY.md
+./Framework/data/SOURCE_POLICY.md
+./Framework/evals/CALIBRATION.md
+./Framework/evals/ERROR_BARS.md
+./Framework/evals/EVAL_PLAN.md
+./Framework/evals/GUARDRAILS.md
+./Framework/specs/01_MACRO_FACTOR.md
+./Framework/specs/02_SECTOR_ATTRACTIVENESS.md
+./Framework/specs/03_VALUATION_ATTRACTIVENESS.md
+./Framework/specs/04_FAIR_VALUE_DURABILITY.md
+./Framework/specs/05_CATALYST_EXPECTED_VALUE.md
+./Framework/specs/06_EARNINGS_EXPECTATIONS.md
+./Framework/specs/07_VALUATION_STACK.md
+./Framework/specs/08_MARKET_IMPLIED_EXPECTATIONS.md
+./Framework/specs/09_COMPANY_EVENTS_AND_CATALYSTS.md
+./KB/Companies/.gitkeep
+./KB/Events/.gitkeep
+./KB/KB_ARCHITECTURE.md
+./KB/Macro/.gitkeep
+./KB/Market Expectations/.gitkeep
+./KB/Sectors/.gitkeep
+./KB/Snapshots/.gitkeep
+./KB/Valuation/.gitkeep
+./MANIFEST.txt
+./MASTER.md
+./Reliance/COMPANY.md
+./Reliance/Earnings/2Q26 preview.md
+./Reliance/Model/Reliance_SOTP_DCF_Bands.xlsx
+./Reliance/Sources/.gitkeep
+./Reliance/Thesis.md
+./Reliance/Valuation/.gitkeep

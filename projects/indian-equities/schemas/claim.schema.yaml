@@ -1,0 +1,22 @@
+schema_version: '1.0'
+required:
+- claim_id
+- entity
+- claim_type
+- statement
+- source_id
+- source_tier
+- as_of
+- confidence
+- freshness_status
+- agent_id
+allowed_claim_types:
+- REPORTED_FACT
+- MANAGEMENT_GUIDANCE
+- CONSENSUS
+- MARKET_DATA
+- DERIVED
+- ANALYST_ASSUMPTION
+- INFERENCE
+- SENTIMENT
+- UNKNOWN

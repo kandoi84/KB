@@ -1,0 +1,12 @@
+schema_version: '1.0'
+required:
+- teach_case_id
+- failure_type
+- original_behavior
+- expected_behavior
+- reproducible_benchmark
+- current_system_fails
+- proposed_repair
+- target_eval
+- regression_suite
+- production_change_required

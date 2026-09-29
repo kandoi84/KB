@@ -1,0 +1,28 @@
+agent_id: earnings
+version: '1.0'
+mission: Parse results, presentations, transcripts, guidance and KPI deltas.
+reads:
+- data/raw/company/**
+- data/normalized/company/**
+- kb/companies/**
+- gaps/**
+writes:
+- data/normalized/earnings/**
+- derived/earnings/**
+- gaps/**
+required_checks:
+- results_checked
+- presentation_checked
+- transcript_checked_if_available
+- guidance_separated
+- period_comparison
+prohibited_actions:
+- write_valuation
+- write_probability
+- write_score
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

@@ -1,0 +1,19 @@
+{
+  "as_of": "2026-09-25",
+  "close_inr": 983.0,
+  "standalone_equity_crore": 566831.0,
+  "shares_crore": 923.0617586,
+  "five_year_roe": 0.17,
+  "five_year_payout": 0.20,
+  "terminal_book_growth": 0.07,
+  "terminal_roe_debate": [
+    {"value": 0.12, "probability": 0.20},
+    {"value": 0.14, "probability": 0.60},
+    {"value": 0.16, "probability": 0.20}
+  ],
+  "cost_equity_debate": [
+    {"value": 0.12, "probability": 0.20},
+    {"value": 0.13, "probability": 0.60},
+    {"value": 0.14, "probability": 0.20}
+  ]
+}

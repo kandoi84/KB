@@ -1,0 +1,23 @@
+agent_id: premortem
+version: '1.0'
+mission: Independently search for plausible thesis failure modes.
+reads:
+- kb/**
+- derived/**
+- gaps/**
+writes:
+- derived/premortem/**
+- gaps/**
+required_checks:
+- new_failure_modes_sought
+- hidden_assumptions_checked
+- missing_information_checked
+- failure_modes_ranked
+prohibited_actions:
+- paraphrase_existing_risks_only
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

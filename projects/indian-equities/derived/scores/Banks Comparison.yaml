@@ -1,0 +1,25 @@
+as_of: '2026-09-27'
+method: macro15_sector20_valuation25_fv_durability25_catalyst15
+companies:
+- entity: HDFC Bank
+  factor_scores:
+    macro: 3.4
+    sector: 3.8
+    valuation: 4.0
+    fv_durability: 4.2
+    catalyst: 3.5
+  score: 76.9
+  error_band: 6
+  evidence_grade: B
+  poker: TT + open-ended improvement draw
+- entity: ICICI Bank
+  factor_scores:
+    macro: 3.4
+    sector: 3.8
+    valuation: 3.2
+    fv_durability: 4.6
+    catalyst: 3.7
+  score: 75.5
+  error_band: 6
+  evidence_grade: B
+  poker: TT + made operating hand, lighter valuation draw

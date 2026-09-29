@@ -1,0 +1,25 @@
+agent_id: probability
+version: '1.0'
+mission: Assign/update explicit probabilities to defined debates.
+reads:
+- kb/**
+- derived/expectations/**
+- derived/valuation/**
+- gaps/**
+writes:
+- derived/probability/**
+required_checks:
+- question_explicit
+- prior_recorded
+- new_evidence_recorded
+- posterior_recorded
+- correlation_checked
+prohibited_actions:
+- false_precision
+- double_count_correlated_evidence
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

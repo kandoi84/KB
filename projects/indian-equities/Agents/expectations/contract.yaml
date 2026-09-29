@@ -1,0 +1,22 @@
+agent_id: expectations
+version: '1.0'
+mission: Estimate observable/derived/interpreted market expectations.
+reads:
+- data/normalized/market/**
+- kb/companies/**
+- derived/sentiment/**
+- derived/earnings/**
+writes:
+- derived/expectations/**
+required_checks:
+- observable_vs_derived_vs_interpreted
+- consensus_freshness_checked
+- implied_method_recorded
+prohibited_actions:
+- silently_fill_missing_consensus
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

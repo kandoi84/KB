@@ -1,0 +1,109 @@
+version: '1.0'
+agents:
+- agent_id: orchestrator
+  version: '1.0'
+  mission: Create/execute versioned analysis plans and control the DAG.
+  contract: agents/orchestrator/contract.yaml
+  status: active
+- agent_id: workflow_compliance
+  version: '1.0'
+  mission: Verify required workflow steps were actually executed.
+  contract: agents/workflow_compliance/contract.yaml
+  status: active
+- agent_id: research_integrity
+  version: '1.0'
+  mission: Challenge unsupported claims, evidence laundering, hindsight and false
+    precision.
+  contract: agents/research_integrity/contract.yaml
+  status: active
+- agent_id: evidence
+  version: '1.0'
+  mission: Find, rank, fingerprint, deduplicate and grade evidence.
+  contract: agents/evidence/contract.yaml
+  status: active
+- agent_id: earnings
+  version: '1.0'
+  mission: Parse results, presentations, transcripts, guidance and KPI deltas.
+  contract: agents/earnings/contract.yaml
+  status: active
+- agent_id: macro
+  version: '1.0'
+  mission: Maintain universal macro facts, releases, vintages and regime state.
+  contract: agents/macro/contract.yaml
+  status: active
+- agent_id: market_data
+  version: '1.0'
+  mission: Maintain timestamped prices, yields, FX, commodities, indices and multiples.
+  contract: agents/market_data/contract.yaml
+  status: active
+- agent_id: web_sentiment
+  version: '1.0'
+  mission: Track narratives and public sentiment without upgrading them into facts.
+  contract: agents/web_sentiment/contract.yaml
+  status: active
+- agent_id: sector
+  version: '1.0'
+  mission: Translate macro state into broad sector transmission.
+  contract: agents/sector/contract.yaml
+  status: active
+- agent_id: industry
+  version: '1.0'
+  mission: Model industry-specific economics, KPIs and valuation conventions.
+  contract: agents/industry/contract.yaml
+  status: active
+- agent_id: company_fundamentals
+  version: '1.0'
+  mission: Map inherited macro/sector/industry state to company-specific fundamentals.
+  contract: agents/company_fundamentals/contract.yaml
+  status: active
+- agent_id: expectations
+  version: '1.0'
+  mission: Estimate observable/derived/interpreted market expectations.
+  contract: agents/expectations/contract.yaml
+  status: active
+- agent_id: valuation
+  version: '1.0'
+  mission: Maintain independent valuation lenses and uncertainty.
+  contract: agents/valuation/contract.yaml
+  status: active
+- agent_id: probability
+  version: '1.0'
+  mission: Assign/update explicit probabilities to defined debates.
+  contract: agents/probability/contract.yaml
+  status: active
+- agent_id: premortem
+  version: '1.0'
+  mission: Independently search for plausible thesis failure modes.
+  contract: agents/premortem/contract.yaml
+  status: active
+- agent_id: historical_case
+  version: '1.0'
+  mission: Run point-in-time no-lookahead historical counterfactual analyses.
+  contract: agents/historical_case/contract.yaml
+  status: active
+- agent_id: snapshot_audit
+  version: '1.0'
+  mission: Enforce publication gates and freeze immutable snapshots.
+  contract: agents/snapshot_audit/contract.yaml
+  status: active
+- agent_id: postmortem
+  version: '1.0'
+  mission: Compare expected vs realized outcomes and classify errors.
+  contract: agents/postmortem/contract.yaml
+  status: active
+- agent_id: casebook
+  version: '1.0'
+  mission: Maintain immutable live/historical/completed investment cases.
+  contract: agents/casebook/contract.yaml
+  status: active
+- agent_id: learning
+  version: '1.0'
+  mission: Convert repeated outcomes/errors into lessons, evals and proposed changes.
+  contract: agents/learning/contract.yaml
+  status: active
+- agent_id: self_healing
+  version: '1.0'
+  mission: Diagnose system failures and propose but never silently deploy production
+    repairs.
+  contract: agents/self_healing/contract.yaml
+  status: active

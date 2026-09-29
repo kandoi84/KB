@@ -1,0 +1,23 @@
+agent_id: casebook
+version: '1.0'
+mission: Maintain immutable live/historical/completed investment cases.
+reads:
+- snapshots/**
+- derived/**
+- data/normalized/market/**
+writes:
+- cases/**
+required_checks:
+- benchmark_recorded
+- cutoff_recorded
+- inception_immutable
+- outcome_append_only
+prohibited_actions:
+- delete_failed_case
+- rewrite_inception
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

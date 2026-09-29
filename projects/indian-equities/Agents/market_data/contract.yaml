@@ -1,0 +1,20 @@
+agent_id: market_data
+version: '1.0'
+mission: Maintain timestamped prices, yields, FX, commodities, indices and multiples.
+reads:
+- config/**
+- data/raw/market/**
+writes:
+- data/normalized/market/**
+required_checks:
+- timestamped
+- unit_validated
+- source_recorded
+prohibited_actions:
+- narrative_interpretation
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

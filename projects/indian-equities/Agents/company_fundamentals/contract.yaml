@@ -1,0 +1,26 @@
+agent_id: company_fundamentals
+version: '1.0'
+mission: Map inherited macro/sector/industry state to company-specific fundamentals.
+reads:
+- kb/macro/**
+- kb/sectors/**
+- kb/industries/**
+- data/normalized/company/**
+- derived/earnings/**
+writes:
+- kb/companies/**
+- gaps/company/**
+required_checks:
+- inheritance_explicit
+- company_exposures_explicit
+- guidance_vs_fact_separated
+- gaps_updated
+prohibited_actions:
+- change_macro_state
+- change_industry_structure
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

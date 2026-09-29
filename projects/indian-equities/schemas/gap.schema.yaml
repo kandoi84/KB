@@ -1,0 +1,17 @@
+schema_version: '1.0'
+required:
+- gap_id
+- entity
+- question
+- importance
+- known
+- unknown
+- evidence_required
+- thesis_impact
+- confidence_penalty
+- status
+allowed_status:
+- OPEN
+- PARTIALLY_RESOLVED
+- RESOLVED
+- UNRESOLVABLE

@@ -1,0 +1,23 @@
+# SBI source ledger — pilot v1
+
+**Retrieved:** 28 September 2026. Company PDFs are linked to SBI's own site. Page numbers refer to the PDF's displayed page number. “Reported” means SBI's disclosure; “derived” means arithmetic shown in the model. All monetary values are INR.
+
+| ID | Item used | Type | Observation / source date | Primary location or method | Confidence / limit |
+|---|---|---|---|---|---|
+| S1 | Q1FY27 standalone NII, operating profit, net profit; year-earlier figures | Reported | Quarter ended 30 Jun 2026 / 7 Aug 2026 | [SBI Q1FY27 analyst presentation, p. 8](https://sbi.bank.in/documents/17836/1275616/07082026_SBI%2BAnalyst%2BPresentation%2BQ1FY27.pdf/6e4ca530-1666-574e-22fb-f9e19d553ef5?t=1786091443352) | High; presentation rounds crore values |
+| S2 | Gross advances, deposits, NIM, GNPA, NNPA, credit cost, capital adequacy and comparatives | Reported | 30 Jun 2026 / 7 Aug 2026 | [Same presentation, pp. 5, 8, 13–14](https://sbi.bank.in/documents/17836/1275616/07082026_SBI%2BAnalyst%2BPresentation%2BQ1FY27.pdf/6e4ca530-1666-574e-22fb-f9e19d553ef5?t=1786091443352) | High; different ratios may be quarterly or period-end |
+| S3 | Q1FY27 RoE 17.87%, domestic CASA 39.24% | Reported | 30 Jun 2026 / 7 Aug 2026 | [Same presentation, pp. 5, 13](https://sbi.bank.in/documents/17836/1275616/07082026_SBI%2BAnalyst%2BPresentation%2BQ1FY27.pdf/6e4ca530-1666-574e-22fb-f9e19d553ef5?t=1786091443352) | High |
+| S4 | Standalone capital ₹923 crore and reserves/surplus ₹5,65,908 crore; group values kept separate | Reported | 30 Jun 2026 / 7 Aug 2026 | [Same presentation, p. 46](https://sbi.bank.in/documents/17836/1275616/07082026_SBI%2BAnalyst%2BPresentation%2BQ1FY27.pdf/6e4ca530-1666-574e-22fb-f9e19d553ef5?t=1786091443352) | High for reported rounded balances; equity/share is a derived approximation |
+| S5 | 9,230,617,586 shares, ₹1 face value, after July 2025 placement | Reported | 21 Jul 2025 / Q2FY26 disclosure | [SBI Q2FY26 standalone results, placement note](https://home.sbi.bank.in/documents/17826/17948/Financial%2BResults_Q2FY26_Standalone.pdf/Financial%20Results_Q2FY26_Standalonea975.pdf?t=1762245153677) | High as of Q2FY26; reconfirm at each refresh |
+| S6 | FY26 net profit ₹80,032 crore, RoE 18.57%, BVPS ₹512.31, year-end close ₹979.40, reported P/B 1.91× | Reported | FY ended 31 Mar 2026 / SBI web page current 28 Sep 2026 | [SBI five-year highlights, tables I, III and VI](https://sbi.bank.in/en/web/investor-relations/sbi-financial-highlights-past-5) | High for each disclosed figure; **published BVPS does not reconcile to capital plus reserves divided by shares** and must not be spliced into the model without a definition bridge |
+| S7 | ₹983.00 NSE close, 25 Sep 2026 | Market data | Market close 25 Sep 2026 / pages checked 28 Sep 2026 | [Stock Analysis history](https://stockanalysis.com/quote/nse/SBIN/history/), [Investing.com history](https://in.investing.com/equities/state-bank-of-india-historical-data) | Medium; two secondary pages agree, but may share upstream data; official NSE bhavcopy not captured |
+| S8 | Standalone equity/share ≈₹614.08 | Derived calculation | Balances as of 30 Jun 2026; calculated 28 Sep 2026 | (₹923 crore capital + ₹5,65,908 crore reserves)/923.0617586 crore shares; [model inputs](../Model/assumptions.json) | Medium; balances are rounded; differs from SBI's published FY26 BVPS definition |
+| S9 | Near-term RoE, payout, terminal RoE, growth, required equity return and debate probabilities | Analyst estimate | Model dated 25 Sep 2026 | [Assumptions](../Model/assumptions.json) and [valuation note](../Valuation/2026-09-25.md) | Low to medium; not management guidance or consensus |
+| S10 | Subsidiary stake and Q1 performance, including later SBI Funds Management IPO footnote | Reported | Q1 ended 30 Jun 2026 / deck 7 Aug 2026 | [SBI Q1FY27 presentation, pp. 41–43](https://sbi.bank.in/documents/17836/1275616/07082026_SBI%2BAnalyst%2BPresentation%2BQ1FY27.pdf/6e4ca530-1666-574e-22fb-f9e19d553ef5?t=1786091443352) | High for disclosure; not included as separate SOTP value |
+
+## Open source checks
+
+1. Capture official NSE common bhavcopy for 25 September 2026; replace S7 if its close agrees, or reconcile any difference.
+2. Reconcile SBI's published FY26 BVPS of ₹512.31 with the balance-sheet capital-plus-reserves definition. Check treatment of revaluation reserves, investment values, and other regulatory adjustments. Do not silently choose a favorable basis.
+3. Source current shares and latest full quarterly standalone filing at the next refresh; the model uses a rounded balance sheet and the placement share count.
+4. Obtain point-in-time consensus and a sector comparison only if free, permitted sources support them. No consensus is assumed here.

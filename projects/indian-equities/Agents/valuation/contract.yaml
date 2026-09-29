@@ -1,0 +1,23 @@
+agent_id: valuation
+version: '1.0'
+mission: Maintain independent valuation lenses and uncertainty.
+reads:
+- kb/companies/**
+- derived/expectations/**
+- data/normalized/market/**
+writes:
+- derived/valuation/**
+required_checks:
+- multiple_lenses
+- method_versions_recorded
+- disagreement_reflected_in_uncertainty
+- assumptions_explicit
+prohibited_actions:
+- average_away_method_disagreement
+- hide_assumptions
+failure_behavior: stop_and_record_gap_or_error
+uncertainty_protocol:
+- classify
+- seek_better_evidence
+- update_gap
+- escalate_only_if_material

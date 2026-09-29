@@ -1,0 +1,11 @@
+{
+  "skill_id": "claim_integrity_review",
+  "version": 1,
+  "handler": "review_claims",
+  "required_inputs": ["review_packet", "claim_report", "passage_report"],
+  "output_type": "claim_review_report",
+  "entity_policy": "EXACT_RUN_ENTITY",
+  "cutoff_policy": "EXACT_RUN_CUTOFF",
+  "retry_policy": "REPLAY_IDEMPOTENT",
+  "publication_allowed": false
+}
