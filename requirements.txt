@@ -1,2 +1,12 @@
-pytest>=8.0.0
+streamlit
+pandas
+duckdb
+lancedb
+openai
+docling
+docling-core
+requests
+bfinance
+numpy
 pypdf==6.19.0
+pytest>=8.0.0
