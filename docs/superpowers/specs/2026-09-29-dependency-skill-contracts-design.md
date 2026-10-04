@@ -97,10 +97,12 @@ and prepare a review packet with their exact IDs. A later call with the same
 run ID and that packet runs review. A changed review packet after it is bound
 fails; a missing packet cannot turn the waiting trace into `COMPLETE`.
 Before invoking a handler, hash the exact workflow and three skill contract
-bytes and canonical available external input contents. Bind all four contract
-hashes, entity, cutoff, and run ID in
+bytes and canonical available external input contents. Also bind the exact
+filing rows that direct-claim review reads from SQLite, including across the
+`AWAITING_REVIEW` pause. Changes to those rows require a new run ID; unrelated
+catalog updates do not. Bind all four contract hashes, entity, cutoff, and run ID in
 `state/workflow_runs/<run_id>/state.json`. Reusing a run ID with a changed
-workflow, skill, external input, entity, or cutoff fails before any stage.
+workflow, skill, external input, relevant filing row, entity, or cutoff fails before any stage.
 
 For each stage, record stage/skill/handler/version, exact skill path and
 digest, workflow digest, parent artifact IDs, input hashes, output

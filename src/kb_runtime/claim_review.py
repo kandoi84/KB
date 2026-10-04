@@ -1,5 +1,6 @@
 """Freeze human review of exact direct filing claims for internal use only."""
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -208,24 +209,7 @@ def _packet(path, claim, passage):
 
 
 def _filing_status(catalog_path, project_dir, claim, cutoff, decision_reviewed_at):
-    if not Path(catalog_path).is_file():
-        return "FILING_NOT_REVIEWED"
-    with closing(sqlite3.connect(catalog_path)) as db:
-        db.row_factory = sqlite3.Row
-        try:
-            rows = db.execute("""SELECT f.*, s.issuer_id AS security_issuer,
-                s.announced_at AS security_announced, s.first_seen_at AS security_seen,
-                s.reviewed_at AS security_reviewed, s.review_decision AS security_decision,
-                s.source_id AS security_source, s.version_id AS security_version,
-                c.first_seen_at AS company_seen, c.reviewed_at AS company_reviewed,
-                c.review_decision AS company_decision, c.source_id AS company_source,
-                c.version_id AS company_version
-                FROM filings f JOIN securities s ON s.isin=f.isin
-                JOIN companies c ON c.issuer_id=s.issuer_id
-                WHERE f.source_id=? AND f.version_id=?""",
-                (claim["source_id"], claim["version_id"])).fetchall()
-        except sqlite3.DatabaseError:
-            return "FILING_NOT_REVIEWED"
+    rows = _catalog_filing_rows(catalog_path, claim)
     if len(rows) != 1:
         return "FILING_NOT_REVIEWED"
     row = rows[0]
@@ -253,6 +237,40 @@ def _filing_status(catalog_path, project_dir, claim, cutoff, decision_reviewed_a
     except (OSError, ValueError, KeyError, TypeError):
         return "SOURCE_DAMAGED"
     return None
+
+
+def _catalog_filing_rows(catalog_path, claim):
+    """Return the exact catalog rows consulted when reviewing one filing claim."""
+    if not Path(catalog_path).is_file():
+        return []
+    with closing(sqlite3.connect(catalog_path)) as db:
+        db.row_factory = sqlite3.Row
+        try:
+            rows = db.execute("""SELECT f.*, s.issuer_id AS security_issuer,
+                s.announced_at AS security_announced, s.first_seen_at AS security_seen,
+                s.reviewed_at AS security_reviewed, s.review_decision AS security_decision,
+                s.source_id AS security_source, s.version_id AS security_version,
+                c.first_seen_at AS company_seen, c.reviewed_at AS company_reviewed,
+                c.review_decision AS company_decision, c.source_id AS company_source,
+                c.version_id AS company_version
+                FROM filings f JOIN securities s ON s.isin=f.isin
+                JOIN companies c ON c.issuer_id=s.issuer_id
+                WHERE f.source_id=? AND f.version_id=?""",
+                (claim["source_id"], claim["version_id"])).fetchall()
+        except sqlite3.DatabaseError:
+            return []
+    return [dict(row) for row in rows]
+
+
+def catalog_review_digest(catalog_path, claims):
+    """Bind only filing rows that direct-claim review reads, not unrelated catalog data."""
+    relevant = []
+    for claim in claims:
+        if claim.get("claim_type") in DIRECT_TYPES:
+            relevant.append({"claim_id": claim["claim_id"],
+                             "rows": _catalog_filing_rows(catalog_path, claim)})
+    payload = json.dumps(relevant, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _result(claim, passage, decision, project_dir, catalog_path, cutoff, cutoff_day):

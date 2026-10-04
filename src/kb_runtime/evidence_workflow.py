@@ -12,6 +12,7 @@ from .claim_lineage import _claim_status, _gap, _hash_json as _claim_hash
 from .claim_lineage import _read_request as _read_claim_request
 from .claim_lineage import load_claim_report
 from .claim_review import _evaluate as _review_evaluate
+from .claim_review import catalog_review_digest
 from .claim_review import _packet as _review_packet
 from .claim_review import _read_existing as _read_review
 from .claim_review import _upstream as _review_upstream
@@ -253,7 +254,7 @@ def _verify_review(state_dir, run_id, entity, cutoff, packet_path, project_dir,
 
 
 def _verify(stage, state_dir, run_id, entity, cutoff, inputs, project_dir, catalog_path,
-            prior):
+            prior, expected_catalog_digest):
     if stage == "refresh":
         report = _verify_refresh(state_dir, run_id, entity, cutoff, inputs["source_request"][0],
                                  inputs["claim_request"][0], inputs["source_request"][2],
@@ -267,8 +268,12 @@ def _verify(stage, state_dir, run_id, entity, cutoff, inputs, project_dir, catal
                                   inputs["passage_packet"][2], project_dir, claim_id)
         return report, [claim_id], {}
     passage_id = prior["passages"]["output_id"]
+    if catalog_review_digest(catalog_path, inputs["claim_request"][0]["claims"]) != expected_catalog_digest:
+        raise ValueError("workflow catalog changed during review")
     report = _verify_review(state_dir, run_id, entity, cutoff, inputs["review_packet"][2],
                             project_dir, catalog_path, claim_id, passage_id)
+    if catalog_review_digest(catalog_path, inputs["claim_request"][0]["claims"]) != expected_catalog_digest:
+        raise ValueError("workflow catalog changed during review")
     return report, [claim_id, passage_id], {}
 
 
@@ -315,6 +320,8 @@ def run_evidence_workflow(source_request: Path, claim_request: Path, passage_pac
     bindings = {"workflow_sha256": workflow_digest,
                 "skills": {name: skills[name][1] for name in plan_stages(workflow)},
                 "inputs": {name: item[1] for name, item in inputs.items()},
+                "catalog_sha256": catalog_review_digest(
+                    catalog, inputs["claim_request"][0]["claims"]),
                 "entity": entity, "cutoff_timestamp": cutoff, "run_id": run_id}
     state_path = state_dir / "workflow_runs" / run_id / "state.json"
     if state_path.exists():
@@ -350,13 +357,14 @@ def run_evidence_workflow(source_request: Path, claim_request: Path, passage_pac
                     or review_value["passage_report_id"] != completed[1].get("output_id")):
                 raise ValueError("review packet parent binding differs from frozen stages")
             verified_refresh, _, children = _verify(
-                "refresh", state_dir, run_id, entity, cutoff, inputs, project_dir, catalog, {})
+                "refresh", state_dir, run_id, entity, cutoff, inputs, project_dir, catalog, {},
+                bindings["catalog_sha256"])
             if (completed[0].get("output_id") != verified_refresh.get("manifest_id")
                     or completed[0].get("child_ids") != children):
                 raise ValueError("review parent refresh differs from frozen artifact")
             verified_passage, parents, _ = _verify(
                 "passages", state_dir, run_id, entity, cutoff, inputs, project_dir, catalog,
-                {"refresh": completed[0]})
+                {"refresh": completed[0]}, bindings["catalog_sha256"])
             if (completed[1].get("output_id") != verified_passage.get("report_id")
                     or completed[1].get("parent_ids") != parents):
                 raise ValueError("review parent passage differs from frozen artifact")
@@ -382,7 +390,8 @@ def run_evidence_workflow(source_request: Path, claim_request: Path, passage_pac
         old = next((item for item in state["stages"] if item.get("stage_id") == stage_id), None)
         if old and old.get("status") == "COMPLETE":
             report, parents, children = _verify(stage_id, state_dir, run_id, entity, cutoff,
-                                                inputs, project_dir, catalog, prior)
+                                                inputs, project_dir, catalog, prior,
+                                                bindings["catalog_sha256"])
             expected_path = state_dir / {"refresh": "evidence_runs", "passages": "passage_runs",
                                          "review": "claim_review_runs"}[stage_id] / f"{run_id}.json"
             if (old.get("output_id") != report.get("manifest_id", report.get("report_id"))
@@ -437,7 +446,8 @@ def run_evidence_workflow(source_request: Path, claim_request: Path, passage_pac
                                   state_dir / "passage_runs" / f"{run_id}.json", project_dir,
                                   catalog, state_dir, run_id)
                 report, parents, children = _verify(stage_id, state_dir, run_id, entity, cutoff,
-                                                    inputs, project_dir, catalog, prior)
+                                                    inputs, project_dir, catalog, prior,
+                                                    bindings["catalog_sha256"])
                 receipt.update(status="COMPLETE", parent_ids=parents, child_ids=children,
                                output_id=report.get("manifest_id", report.get("report_id")),
                                output_path=str(state_dir / {"refresh": "evidence_runs",

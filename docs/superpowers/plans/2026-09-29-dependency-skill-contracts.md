@@ -32,10 +32,9 @@
 
 **Interfaces:** `load_contract(path: Path) -> tuple[dict, str, dict[str, tuple[dict, str]]]` returns the validated workflow, its byte digest, and loaded skill contracts with byte digests keyed by stage ID. `plan_stages(contract: dict) -> tuple[str, ...]` returns the validated topological order. The handler registry is a fixed code map for the three shipped operations.
 
-- [ ] Write failing tests for the exact three-node contract, stage order, missing or changed skill file, wrong pinned digest, outside-directory path, unknown field/version/handler, duplicate IDs, wrong entity/cutoff policy, missing or wrong typed dependency, and cycle. Assert no handler ran.
-- [ ] Run `python3 -m pytest tests/test_evidence_workflow.py -q` and confirm the intended failures.
-- [ ] Load all four files, verify each skill byte digest against its workflow reference, and validate strict JSON schemas plus the fixed stage-to-skill binding. Use no dynamic import or path supplied handler.
-- [ ] Rerun the focused tests and confirm the contract tests pass.
+- [x] Contract tests cover the three-node order, invalid pins/paths/schemas/handlers/policies/dependencies, missing skills, and unsafe graphs before execution.
+- [x] The workflow loader verifies all four contracts, exact byte digests, strict fields, and fixed stage-to-skill bindings without dynamic handlers.
+- [x] Verified: `python3 -m pytest tests/test_evidence_workflow.py -q` → 41 passed.
 
 ### Task 2: Frozen input and artifact verification
 
@@ -43,30 +42,27 @@
 
 **Interfaces:** `run_evidence_workflow(source_request: Path, claim_request: Path, passage_packet: Path, review_packet: Path | None, contract_path: Path, project_dir: Path, catalog: Path, state_dir: Path, run_id: str) -> dict` returns a run trace with stage receipts and `publication_allowed: False`. A first call without the review packet pauses after refresh and passages; a later call resumes with a review packet bound to their exact report IDs.
 
-- [ ] Write failing tests for a synthetic three-stage run, exact entity/cutoff, report IDs, source and claim child reports, parent links, and trace workflow/skill path, digest, handler, and version identities.
-- [ ] Add failing cases for missing, damaged, forged-safe, wrong-entity, wrong-cutoff, wrong-parent-ID, or wrong-type artifacts; assert no later handler executes.
-- [ ] Run the focused tests to observe the intended failures.
-- [ ] Invoke the existing evaluators in contract order. Re-read each frozen output with its module's safety checks and verify upstream IDs before recording completion. Preserve blocked diagnostic statuses without treating them as approval.
-- [ ] Rerun focused tests and confirm these cases pass.
+- [x] Synthetic three-stage tests cover entity/cutoff, report IDs, child and parent bindings, contract identities, unsafe artifacts, and two-phase review resume.
+- [x] Existing evaluators run in contract order; each frozen output is reloaded and checked before the next stage completes.
+- [x] Verified: `python3 -m pytest tests/test_evidence_workflow.py -q` → 41 passed.
 
 ### Task 3: Replay, retry, and durable trace
 
 **Files:** Extend `src/kb_runtime/evidence_workflow.py` and `tests/test_evidence_workflow.py`.
 
-- [ ] Write failing tests for exact replay, changed input or contract with the same run ID, failure before stage output, failure after output but before trace write, tampered completed output on resume, and blocked dependent execution.
-- [ ] Run the focused tests and confirm the intended failures.
-- [ ] Persist atomic trace state in `state/workflow_runs/<run_id>/state.json`, bind workflow, three skill, and input hashes, and resume only after re-verifying completed artifacts. Give runtime failures one recorded automatic retry; do not retry validation failures.
-- [ ] Rerun focused tests and confirm replay, retry, and crash recovery pass without duplicate frozen output.
+- [x] Replay, changed input/contract/relevant filing rows, pre-output and post-output failures, tampered artifacts, and retry behavior have focused coverage.
+- [x] Trace state is atomic, binds workflow/skill/input and relevant catalog-row hashes, re-verifies completed artifacts, and retries runtime failures once while validation errors stop immediately.
+- [x] Verified: `python3 -m pytest tests/test_evidence_workflow.py -q` → 42 passed.
 
 ### Task 4: CLI, documentation, and delivery
 
 **Files:** Modify `src/kb_runtime/__main__.py` and `projects/indian-equities/README.md`; extend `tests/test_evidence_workflow.py`. Update the program status only after the implemented acceptance tests pass.
 
-- [ ] Write a failing CLI test for `run-evidence-workflow` with explicit contract, three required input paths, optional review packet, project/catalog/state directories, and run ID.
-- [ ] Run the CLI test to confirm failure, add the command, and rerun it to confirm the JSON trace and blocked publication field.
-- [ ] Document the command, contract activation meaning, old agent-document limit, and disabled downstream stages.
-- [ ] Run focused checks and `python3 -m pytest -q`; inspect failures and fix causes before rerun.
-- [ ] Get an independent code/design review. Inspect `git status`, task diff, staged paths, and `git diff --cached --check`; commit and push only owned completed files through the repository delivery process.
+- [x] CLI test covers the required input paths, optional review packet, explicit contract, state/catalog/project paths, run ID, and JSON trace.
+- [x] README documents invocation, contract activation, limits of legacy agent documents, and disabled downstream stages.
+- [x] Verified 2026-10-04: focused tests → 42 passed; full suite `python3 -m pytest -q` → 627 passed, 2 skipped.
+
+**Slice status:** Complete for the reviewed three-stage evidence workflow. Review now binds only the filing rows used for direct claims, so unrelated catalog writes do not break replay. Analysis, publication, and learning stages remain unavailable by design.
 
 ## Acceptance
 

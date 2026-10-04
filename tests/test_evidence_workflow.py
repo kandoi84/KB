@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -447,6 +448,46 @@ def test_wrong_review_parent_does_not_bind_packet_or_prevent_correction(tmp_path
                     "claim_report_id": manifest["claim_report_id"],
                     "passage_report_id": passage["report_id"], "decisions": []})
     assert _run(resumed)["status"] == "COMPLETE"
+
+
+def test_catalog_change_while_awaiting_review_rejects_resume(tmp_path):
+    data = _inputs(tmp_path, make_review=False)
+    catalog = data[0] / "catalog.sqlite"
+    claim = json.loads(data[3].read_text())["claims"][0]
+    known_at = "2026-09-01T00:00:00+00:00"
+    with sqlite3.connect(catalog) as db:
+        db.executescript("""CREATE TABLE companies (
+            issuer_id TEXT, first_seen_at TEXT, reviewed_at TEXT,
+            review_decision TEXT, source_id TEXT, version_id TEXT);
+        CREATE TABLE securities (
+            isin TEXT, issuer_id TEXT, announced_at TEXT, first_seen_at TEXT,
+            reviewed_at TEXT, review_decision TEXT, source_id TEXT, version_id TEXT);
+        CREATE TABLE filings (
+            filing_id TEXT, issuer_id TEXT, isin TEXT, raw_sha256 TEXT,
+            rights_status TEXT, review_decision TEXT, published_at TEXT,
+            first_seen_at TEXT, reviewed_at TEXT, source_id TEXT, version_id TEXT);""")
+        db.execute("INSERT INTO companies VALUES (?, ?, ?, ?, ?, ?)",
+                   ("SBI", known_at, known_at, "CONFIRMED", "company-source", "company-version"))
+        db.execute("INSERT INTO securities VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                   ("INE062A01020", "SBI", known_at, known_at, known_at, "CONFIRMED",
+                    "security-source", "security-version"))
+        db.execute("INSERT INTO filings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                   ("filing-1", "SBI", "INE062A01020", "a" * 64, "REVIEWED",
+                    "CONFIRMED", known_at, known_at, known_at, claim["source_id"],
+                    claim["version_id"]))
+    waiting = _run(data)
+    manifest = json.loads((data[1] / "evidence_runs/flow-1.json").read_text())
+    passage = json.loads((data[1] / "passage_runs/flow-1.json").read_text())
+    review = tmp_path / "review-after-passages.json"
+    _write(review, {"entity": "SBI", "cutoff_timestamp": waiting["cutoff_timestamp"],
+                    "claim_report_id": manifest["claim_report_id"],
+                    "passage_report_id": passage["report_id"], "decisions": []})
+    with sqlite3.connect(catalog) as db:
+        db.execute("UPDATE companies SET review_decision = 'REVOKED'")
+    with pytest.raises(ValueError, match="input or contract"):
+        _run((*data[:-1], review))
+    assert json.loads((data[1] / "workflow_runs/flow-1/state.json").read_text()) == waiting
+    assert not (data[1] / "claim_review_runs/flow-1.json").exists()
 
 
 def test_rehashed_manifest_and_trace_cannot_invent_blocked_source_status(tmp_path):
