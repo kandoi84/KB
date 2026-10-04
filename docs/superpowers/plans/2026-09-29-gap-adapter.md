@@ -33,10 +33,10 @@
 
 **Interfaces:** `attempt_gap(packet_path: Path, claim_report_path: Path, source_report_path: Path, source_request_path: Path, claim_request_path: Path, raw_path: Path | None, metadata_path: Path | None, project_dir: Path, state_dir: Path, attempt_id: str) -> dict`. It consumes the exact fields and classes in the spec; it returns a frozen attempt receipt. Original request paths are required to verify parent semantics. Raw and metadata paths are required only for eligible classes.
 
-- [ ] Write tests for a valid synthetic `PUBLIC_PRIMARY_MISSING` packet, then for each blocked classification and ineligible readiness status. Check that no source version is created in blocked cases.
-- [ ] Run `pytest tests/test_gap_attempt.py -q` and see the expected import or missing-function failure.
-- [ ] Implement strict packet parsing, parent digest, request hash and historical semantic checks, exact gap lookup, source readiness binding, URL/metadata/raw validation, and eligibility results. Reuse existing report loaders and safe ID style.
-- [ ] Run `pytest tests/test_gap_attempt.py -q`; fix validation until the focused cases pass.
+- [x] Write tests for a valid synthetic `PUBLIC_PRIMARY_MISSING` packet, then for each blocked classification and ineligible readiness status. Check that no source version is created in blocked cases.
+- [x] Run `pytest tests/test_gap_attempt.py -q` and see the expected import or missing-function failure.
+- [x] Implement strict packet parsing, parent digest, request hash and historical semantic checks, exact gap lookup, source readiness binding, URL/metadata/raw validation, and eligibility results. Reuse existing report loaders and safe ID style.
+- [x] Run `pytest tests/test_gap_attempt.py -q`; fix validation until the focused cases pass.
 
 ### Task 2: Store an idempotent attempt
 
@@ -44,10 +44,10 @@
 
 **Interfaces:** `attempt_gap(...)` creates a temporary registration metadata file with the actual retrieval time, then calls `record_source(registration_metadata_path, raw_path, project_dir)` only after eligibility and writes `state/gap_attempts/<attempt_id>/intent.json` and `result.json`. The result carries `attempt_id`, parent IDs, packet/raw/metadata digests, rights decision, adapter version, status/reason, source version when present, `gap_status: OPEN`, and `publication_allowed: false`.
 
-- [ ] Write tests for one successful import, replay, changed input collision, tampered receipt or source, blocked receipt, and interrupted intent after storage.
-- [ ] Run the focused test and see the new cases fail before implementation.
-- [ ] Implement canonical hashing and atomic write-once intent/result records. Generate registration metadata with the attempt time frozen in intent as `retrieved_at`; never accept a backdated retrieval time. On resume, regenerate the same metadata, verify the existing source version and hashes, and write only the missing result. Never overwrite a completed result.
-- [ ] Run the focused test and verify all cases pass.
+- [x] Write tests for one successful import, replay, changed input collision, tampered receipt or source, blocked receipt, and interrupted intent after storage.
+- [x] Run the focused test and see the new cases fail before implementation.
+- [x] Implement canonical hashing and atomic write-once intent/result records. Generate registration metadata with the attempt time frozen in intent as `retrieved_at`; never accept a backdated retrieval time. On resume, regenerate the same metadata, verify the existing source version and hashes, and write only the missing result. Never overwrite a completed result.
+- [x] Run the focused test and verify all cases pass.
 
 ### Task 3: CLI, documentation, and delivery
 
@@ -55,9 +55,13 @@
 
 **Interfaces:** CLI `attempt-gap --packet --claim-report --source-report --source-request --claims [--raw-file --metadata] --project-dir --state-dir --attempt-id` prints receipt JSON or exits nonzero with a clear validation error. Both optional flags are required for eligible classes.
 
-- [ ] Add a CLI test for successful synthetic local import and blocked/no-network result; observe failure.
-- [ ] Wire the CLI and document that rights are human-attested, the old gap stays open, and a new cutoff refresh plus 05 review is needed.
-- [ ] Run `pytest tests/test_gap_attempt.py -q` and `python3 -m compileall -q src/kb_runtime`; confirm success.
-- [ ] Run `pytest -q`; inspect the full result and fix failures caused by 07.
+- [x] Add a CLI test for successful synthetic local import and blocked/no-network result; observe failure.
+- [x] Wire the CLI and document that rights are human-attested, the old gap stays open, and a new cutoff refresh plus 05 review is needed.
+- [x] Run `pytest tests/test_gap_attempt.py -q` and `python3 -m compileall -q src/kb_runtime`; confirm success.
+- [x] Run `pytest -q`; inspect the full result and fix failures caused by 07.
 - [ ] Review `git status --short`, the exact task diff, and the staged paths; run `git diff --cached --check`.
 - [ ] Commit task-owned files with `feat: add classified gap attempts` and push the feature branch to `origin` under repository delivery rules. Record the commit and any remaining rights or real-source limit.
+
+## Follow-up hardening
+
+- [x] Reject a duplicate reviewed decision even when replayed under a second attempt ID. Atomically reserve the packet digest after validating attempt ID reuse; test rejection and ensure a failed reuse cannot poison a later valid decision.

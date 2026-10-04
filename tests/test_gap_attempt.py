@@ -79,6 +79,27 @@ def test_missing_primary_records_once_and_replay_is_stable(tmp_path):
     assert len(list((fixture[0] / "data/registry/sources/SBI_FILING").glob("*.json"))) == 1
 
 
+def test_same_reviewed_decision_cannot_use_a_second_attempt_id(tmp_path):
+    fixture = setup(tmp_path)
+    call(fixture)
+    with pytest.raises(ValueError, match="duplicate decision"):
+        call(fixture, attempt_id="attempt-two")
+    assert len(list((fixture[0] / "data/registry/sources/SBI_FILING").glob("*.json"))) == 1
+
+
+def test_rejected_attempt_id_reuse_does_not_reserve_new_decision(tmp_path):
+    fixture = setup(tmp_path)
+    call(fixture)
+    packet = json.loads(fixture[2].read_text())
+    packet["rights_evidence_ref"] = "agreement-2026-2"
+    write(fixture[2], packet)
+    with pytest.raises(ValueError, match="changed inputs"):
+        call(fixture)
+    result = call(fixture, attempt_id="attempt-two")
+    assert result["status"] == "RECORDED"
+    assert len(list((fixture[0] / "data/registry/sources/SBI_FILING").glob("*.json"))) == 2
+
+
 @pytest.mark.parametrize("classification,status", [
     ("INTERNAL_RESEARCH", "HUMAN_WORK_REQUIRED"),
     ("PROPRIETARY_OR_RESTRICTED", "RIGHTS_BLOCKED"),

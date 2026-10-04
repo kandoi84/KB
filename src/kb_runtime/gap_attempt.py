@@ -321,6 +321,27 @@ def _verify_version(result, project):
         raise ValueError("recorded raw blob differs from attempt")
 
 
+def _reject_duplicate_decision(state, attempt_id, packet_hash):
+    attempts_dir = state / "gap_attempts"
+    attempts_dir.mkdir(parents=True, exist_ok=True)
+    for intent_path in attempts_dir.glob("*/intent.json"):
+        if intent_path.parent.name == attempt_id:
+            continue
+        intent = _read_sealed(intent_path, "intent_id")
+        if intent.get("packet_hash") == packet_hash:
+            raise ValueError("duplicate decision already has another attempt_id")
+    marker_path = attempts_dir / ".decisions" / f"{packet_hash}.json"
+    marker = _sealed({"packet_hash": packet_hash, "attempt_id": attempt_id}, "decision_id")
+    try:
+        _write_once(marker_path, marker, "decision_id")
+    except ValueError as exc:
+        if marker_path.exists():
+            existing = _read_sealed(marker_path, "decision_id")
+            if existing.get("attempt_id") != attempt_id:
+                raise ValueError("duplicate decision already has another attempt_id") from exc
+        raise
+
+
 def attempt_gap(packet_path: Path, claim_report_path: Path, source_report_path: Path,
                 source_request_path: Path, claim_request_path: Path,
                 raw_path: Path | None, metadata_path: Path | None, project_dir: Path,
@@ -364,6 +385,7 @@ def attempt_gap(packet_path: Path, claim_report_path: Path, source_report_path: 
             raise ValueError("attempt_id cannot be reused with changed inputs")
         intent = existing_intent
     else:
+        _reject_duplicate_decision(state, attempt_id, input_binding["packet_hash"])
         intent = _sealed({**input_binding, "attempted_at": now.isoformat()}, "intent_id")
         _write_once(intent_path, intent, "intent_id")
     expected_version = (_hash_json({**metadata, "retrieved_at": intent["attempted_at"],
