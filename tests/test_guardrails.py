@@ -4,6 +4,7 @@ from pathlib import Path
 from src.kb_runtime.live_storage import LiveKBStorage, Company, Metric
 from src.kb_runtime.live_ingestion import LiveIngestionEngine, IngestionConfig
 from src.kb_runtime.guardrails import NumericSanityGate, RetrievalEvalHarness
+from test_live_ingestion import _pdf
 
 def test_sanity_gate_blocks_negative_revenue():
     gate = NumericSanityGate()
@@ -66,7 +67,7 @@ def test_ingestion_engine_blocks_on_sanity_failure(tmp_path):
     engine = LiveIngestionEngine(storage)
     
     pdf_path = tmp_path / "doc.pdf"
-    pdf_path.write_bytes(b"content")
+    pdf_path.write_bytes(_pdf("Report with ordinary business details"))
     
     # Metric with negative revenue should block
     metrics = [Metric(isin, "Revenue", -1.0, "2023-12-31", "2024-01-01", "v1")]
@@ -91,9 +92,10 @@ def test_ingestion_engine_blocks_on_low_recall(tmp_path):
     (golden_set_dir / f"{isin}.json").write_text(json.dumps(golden_set))
     
     engine = LiveIngestionEngine(storage, IngestionConfig(golden_set_dir=golden_set_dir))
+    engine._parse_with_docling = lambda _: "Report with ordinary business details"
     
     pdf_path = tmp_path / "doc.pdf"
-    pdf_path.write_bytes(b"content")
+    pdf_path.write_bytes(_pdf("Report with ordinary business details"))
     
     version_id, success, logs = engine.ingest_document(
         isin, "ANNUAL", "2024-01-01", "2023-12-31", "url", pdf_path

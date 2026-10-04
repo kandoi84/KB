@@ -62,6 +62,33 @@ ID, version ID, and raw SHA-256 hash. Repeating the same input returns the
 same version. The source register is an update trail, not approval of the
 source or its claims. See `GOVERNANCE/INGESTION_POLICY.md` for the rules.
 
+## Historical evaluation readiness
+
+Mini spec 12 has explicit commands for cohort registration, score freezing,
+outcome reveal, and report generation. Cohort registration needs a manifest
+and a JSON replay map from each case ID to its `case_packet_path` and eight
+frozen replay input paths:
+
+```sh
+python3 -m src.kb_runtime register-evaluation-cohort \
+  --manifest path/to/cohort.json \
+  --case-replay-inputs path/to/case-replay-inputs.json
+python3 -m src.kb_runtime freeze-historical-scores \
+  --request path/to/score-request.json
+python3 -m src.kb_runtime reveal-historical-outcomes \
+  --request path/to/reveal-request.json
+python3 -m src.kb_runtime evaluate-historical-cohort \
+  --request path/to/evaluation-request.json
+```
+
+The CLI currently has no enabled scorer or market-feed adapter. Score and
+reveal requests therefore return blocked receipts for real data. Synthetic
+fixtures can exercise module-level adapters in tests, but cannot count as
+investment results. Reports always keep publication, live decisions, and
+promotion disabled. Independent decision seals, reviewed prices and
+benchmarks, point-in-time baselines, sufficient samples, and human review are
+still required before any historical result can be considered for promotion.
+
 ## Check source readiness
 
 Create a JSON request with a research `entity`, a timezone-aware

@@ -14,6 +14,10 @@ from .evidence_refresh import refresh_evidence
 from .evidence_workflow import run_evidence_workflow
 from .filtered_retrieval import search_chunks
 from .gap_attempt import attempt_gap
+from .historical_cohort import register_evaluation_cohort
+from .historical_eval import evaluate_historical_cohort
+from .historical_reveal import reveal_historical_outcomes
+from .historical_score import freeze_historical_scores
 from .identity_store import register_identity, resolve_symbol
 from .metric_store import query_metrics, register_filing, register_filing_metrics
 from .outcome_postmortem import append_outcome_observation, evaluate_due_case
@@ -257,6 +261,22 @@ def main():
     approval = subparsers.add_parser("record-change-approval", help="Record a human change decision")
     approval.add_argument("--packet", type=Path, required=True)
     approval.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    cohort = subparsers.add_parser("register-evaluation-cohort", help="Replay and freeze an evaluation cohort")
+    cohort.add_argument("--manifest", type=Path, required=True)
+    cohort.add_argument("--case-replay-inputs", type=Path, required=True,
+                        help="JSON mapping case IDs to case_packet_path and the eight replay paths")
+    cohort.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
+    cohort.add_argument("--project-dir", type=Path, default=Path("projects/indian-equities"))
+    cohort.add_argument("--catalog", type=Path,
+                        default=Path("projects/indian-equities/data/registry/identity.sqlite"))
+    for command, description in (
+        ("freeze-historical-scores", "Freeze scores using an allowlisted scorer (none enabled by default)"),
+        ("reveal-historical-outcomes", "Reveal outcomes using an allowlisted feed (none enabled by default)"),
+        ("evaluate-historical-cohort", "Report historical evaluation readiness without promotion"),
+    ):
+        historical = subparsers.add_parser(command, help=description)
+        historical.add_argument("--request", type=Path, required=True)
+        historical.add_argument("--state-dir", type=Path, default=Path("projects/indian-equities/state"))
     args = parser.parse_args()
     try:
         if args.command == "record-source":
@@ -386,6 +406,31 @@ def main():
                                            project_dir=args.project_dir, adapter_registry={})
         elif args.command == "record-change-approval":
             result = record_change_approval(args.packet, state_dir=args.state_dir)
+        elif args.command == "register-evaluation-cohort":
+            raw = args.case_replay_inputs.read_bytes()
+            if len(raw) > 1_000_000:
+                raise ValueError("case replay inputs exceed 1 MB")
+            replay = json.loads(raw)
+            if (not isinstance(replay, dict) or not replay
+                    or any(not isinstance(case_id, str) or not isinstance(paths, dict)
+                           or any(not isinstance(key, str) or not isinstance(value, str)
+                                  for key, value in paths.items())
+                           for case_id, paths in replay.items())):
+                raise ValueError("case replay inputs must map case IDs to path objects")
+            result = register_evaluation_cohort(
+                args.manifest, state_dir=args.state_dir, project_dir=args.project_dir,
+                catalog=args.catalog,
+                case_replay_inputs={case_id: {key: Path(value) for key, value in paths.items()}
+                                    for case_id, paths in replay.items()},
+            )
+        elif args.command == "freeze-historical-scores":
+            result = freeze_historical_scores(args.request, state_dir=args.state_dir,
+                                              scorer_registry={})
+        elif args.command == "reveal-historical-outcomes":
+            result = reveal_historical_outcomes(args.request, state_dir=args.state_dir,
+                                                feed_registry={})
+        elif args.command == "evaluate-historical-cohort":
+            result = evaluate_historical_cohort(args.request, state_dir=args.state_dir)
         else:
             state = run_company_research(args.entity, args.input, args.state_dir, args.run_id, args.fail_once)
             result = {"run_id": args.run_id, "status": state["status"]}

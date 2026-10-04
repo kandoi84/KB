@@ -50,9 +50,13 @@ def evaluate_historical_cohort(request_path: Path, *, state_dir: Path) -> dict:
     state = Path(state_dir)
     report_dir = state / "historical_evaluation/reports"
     report_path = report_dir / f"{request['report_id']}.json"
+    request_digest = _digest(request)
     
     if report_path.is_file():
-        raise ValueError(f"existing report {request['report_id']} differs from request")
+        existing = _read_bounded(report_path, "existing report", 20_000_000)
+        if existing.get("request_sha256") != request_digest:
+            raise ValueError(f"existing report {request['report_id']} differs from request")
+        return existing
 
     # Load linked receipts
     cohort_path = state / "historical_evaluation/cohorts" / f"{request['cohort_id']}.json"
@@ -95,6 +99,7 @@ def evaluate_historical_cohort(request_path: Path, *, state_dir: Path) -> dict:
             "publication_allowed": False,
             "live_decision_allowed": False,
             "promotion_allowed": False,
+            "request_sha256": request_digest,
             **SAFETY
         }
     else:
@@ -124,6 +129,7 @@ def evaluate_historical_cohort(request_path: Path, *, state_dir: Path) -> dict:
             "publication_allowed": False,
             "live_decision_allowed": False,
             "promotion_allowed": False,
+            "request_sha256": request_digest,
             **SAFETY
         }
 

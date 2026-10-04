@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-# Absolute imports for CLI execution
+# Make direct execution (`python src/kb_runtime/cli.py`) resolve the repo package.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from src.kb_runtime.live_storage import LiveKBStorage, Company, Metric
 from src.kb_runtime.live_ingestion import LiveIngestionEngine, IngestionConfig
 from src.kb_runtime.live_query import LiveQueryEngine

@@ -82,8 +82,7 @@ class LiveIngestionEngine:
         """
         The guarded ingestion loop:
         1. Sanity check metrics.
-        2. Record raw metadata.
-        3. Parse (Docling), chunk, and embed.
+        2. Parse (Docling), then record metadata and chunks.
         4. Retrieval eval via Golden Set.
         5. Commit if all gates pass.
         """
@@ -106,11 +105,19 @@ class LiveIngestionEngine:
                     "period_end": period_end, "source_url": source_url}
         version_id = self._generate_version_id(metadata, raw_hash)
         
+        # Parse before writing any filing state. A rejected source must not leave
+        # a filing row that appears successfully ingested.
+        try:
+            text = self._parse_with_docling(file_path)
+        except Exception as exc:
+            return "", False, [f"PDF parse failed: {exc}"]
+        if not text.strip():
+            return "", False, ["PDF parse failed: document contains no extractable text"]
+
         filing = Filing(isin, doc_type, filing_date, period_end, source_url, version_id)
         self.storage.record_filing(filing)
-        
-        # 3. Parse, Chunk, Embed
-        text = self._parse_with_docling(file_path)
+
+        # 3. Chunk, Embed
         chunks = self._chunk_text(text)
         vector_data = []
         for i, chunk_text in enumerate(chunks):
