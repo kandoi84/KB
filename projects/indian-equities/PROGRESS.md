@@ -8,9 +8,9 @@ not a refresh of company financials or investment recommendations.
 | Coverage | Existing work | Remaining work |
 |---|---|---|
 | SBI | Company note, thesis, Q1FY27 earnings, source ledger, Python equity model and valuation note | Refresh primary evidence; reconcile published BVPS with model equity/share; verify official price and share count |
-| Reliance | Company framework, thesis, earnings preview and SOTP workbook | Capture a source ledger and dated, sourced segment actuals before refreshing valuation |
-| HDFC Bank | Preliminary comparison, probabilities and premortem under `derived/` | Build a complete company folder and pinned source evidence; preliminary values and scores are not validated |
-| ICICI Bank | Preliminary comparison, probabilities and premortem under `derived/` | Build a complete company folder and pinned source evidence; preliminary values and scores are not validated |
+| Reliance | Company framework, thesis, earnings preview, SOTP workbook and [recovered source index](Companies/Reliance/Sources/LEDGER.md) | Retrieve the indexed documents and validate dated segment inputs before refreshing valuation |
+| HDFC Bank | [Company folder](Companies/HDFCBank/COMPANY.md) consolidating the preliminary comparison, probability and risk work | Retrieve primary evidence and reconstruct the valuation model; inherited values and scores are not validated |
+| ICICI Bank | [Company folder](Companies/ICICIBank/COMPANY.md) consolidating the preliminary comparison, probability and risk work | Retrieve primary evidence and reconstruct the valuation model; inherited values and scores are not validated |
 | Remaining validation universe | Fourteen-company selection in `Framework/UNIVERSE_14.md` | Twelve of those fourteen have no dedicated company folder or company comparison in this checkout |
 
 SBI and Reliance are additional pilots outside the fourteen-company validation
@@ -55,6 +55,16 @@ gaps. Their existence does not establish current source readiness.
   the credential from earlier Git history. No history rewrite was performed.
 
 ## Continue here
+
+The [public-source catalog](research/PUBLIC_SOURCE_CATALOG.md) routes company
+filings, Value Research, ET and Screener to different research needs. The
+[incremental workflow](research/INCREMENTAL_RESEARCH.md) reuses existing
+evidence and updates only affected data/analysis. HDFC/ICICI folders contain
+clearly labelled inherited inputs; no new external financial evidence was
+acquired. Direct publisher requests are blocked by the cloud proxy. Required
+domain additions were saved in the configuration draft, not proven active.
+OpenRouter key revocation remains pending account-owner action; see
+[the incident status](../../docs/cloud/OPENROUTER_REVOCATION_STATUS.md).
 
 1. Follow [bank source intake](research/BANK_SOURCE_INTAKE.md), starting with
    SBI as the existing model and evidence pilot, then HDFC Bank and ICICI Bank.

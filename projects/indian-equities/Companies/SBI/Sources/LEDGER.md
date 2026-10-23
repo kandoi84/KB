@@ -21,3 +21,19 @@
 2. Reconcile SBI's published FY26 BVPS of ₹512.31 with the balance-sheet capital-plus-reserves definition. Check treatment of revaluation reserves, investment values, and other regulatory adjustments. Do not silently choose a favorable basis.
 3. Source current shares and latest full quarterly standalone filing at the next refresh; the model uses a rounded balance sheet and the placement share count.
 4. Obtain point-in-time consensus and a sector comparison only if free, permitted sources support them. No consensus is assumed here.
+
+## 23 October 2026 — refresh access and reuse
+
+The entries above are the preserved September pilot ledger, not newly
+retrieved evidence. No source bytes, share count, price or financial figure
+were refreshed in this update. Research-site checks identified a cloud-proxy
+restriction; required domains are saved in the configuration draft but have
+not been proven active. Do not treat an access failure as a completed refresh.
+
+Start with these existing URLs and the
+[public-source catalog](../../../research/PUBLIC_SOURCE_CATALOG.md), including
+Value Research/ET/Screener for discovery and contextual cross-checks. Retrieve
+permitted original filings for the book-value bridge and shares. Apply only
+the resulting changes using the
+[incremental workflow](../../../research/INCREMENTAL_RESEARCH.md). The dated
+SBI valuation and thesis remain unchanged until the evidence supports a revision.

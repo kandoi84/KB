@@ -8,8 +8,8 @@ pending; this document does not attest that a filing was acquired or reviewed.
 | Company | Starting point | Primary documents to collect | Acceptance checks |
 |---|---|---|---|
 | SBI | `Companies/SBI/Sources/LEDGER.md`, existing model and thesis | Latest available standalone results and notes, presentation, annual-report book-value definition, share-capital reconciliation | Verify issuer identity; reconcile reserves and published BVPS; distinguish quarterly, annualised and period-end ratios |
-| HDFC Bank | `derived/comparison/BANKS_FINAL_COMPARISON.md` | Latest available results, presentation, annual report and share-capital/corporate-action disclosures | Confirm standalone versus consolidated basis, share adjustments, NIM denominator and ROA annualisation |
-| ICICI Bank | Same preliminary comparison | Latest available results, presentation, annual report and share-capital disclosures | Confirm reporting scope, average versus period-end balances and annualisation conventions |
+| HDFC Bank | `Companies/HDFCBank/COMPANY.md` and linked inherited comparison | Latest available results, presentation, annual report and share-capital/corporate-action disclosures | Confirm standalone versus consolidated basis, share adjustments, NIM denominator and ROA annualisation |
+| ICICI Bank | `Companies/ICICIBank/COMPANY.md` and linked inherited comparison | Latest available results, presentation, annual report and share-capital disclosures | Confirm reporting scope, average versus period-end balances and annualisation conventions |
 
 Use company investor-relations materials first. Exchange data requires the
 collection and storage rights checks in `GOVERNANCE/SOURCE_POLICY.md`; a public
@@ -50,3 +50,10 @@ or book value across banks until the denominators and definitions reconcile.
 SBI's immediate unresolved items remain its published BVPS bridge, current
 shares and official price evidence. HDFC/ICICI comparison values remain dated
 preliminary research until this intake and the framework's evaluation gates pass.
+
+The bank folders now preserve inherited earnings, thesis, valuation provenance
+and source gaps. They do not claim source acquisition. Consult the
+[public-source catalog](PUBLIC_SOURCE_CATALOG.md) before collecting data and
+write the [incremental update](INCREMENTAL_RESEARCH.md) rather than recreating
+the full report. Access checks found a cloud proxy restriction; research-domain
+additions are saved in environment settings and await application.

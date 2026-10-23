@@ -15,6 +15,11 @@ Do not store secrets or large licensed raw datasets in Git.
   specifications, policies, agent contracts, and evaluation definitions.
 - `kb/`: shared macro and sector research, source maps, and KB architecture.
 - `Companies/Reliance/`: company thesis, earnings preview, and valuation model.
+- `Companies/SBI/`: existing sourced research pilot and reproducible dated model.
+- `Companies/HDFCBank/`, `Companies/ICICIBank/`: consolidated historical working
+  reports with inherited inputs and explicit evidence gaps, not validated snapshots.
+- `research/PUBLIC_SOURCE_CATALOG.md`, `research/INCREMENTAL_RESEARCH.md`:
+  reuse public data sources and update only changed evidence and analysis.
 - `derived/`: preliminary HDFC Bank and ICICI Bank comparisons, probabilities,
   and premortems. These are research outputs, not validated company snapshots.
 - `docs/sources/`: the imported Library package manifest.

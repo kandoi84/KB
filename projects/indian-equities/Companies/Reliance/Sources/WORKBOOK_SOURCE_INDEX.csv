@@ -1,0 +1,11 @@
+local_reference,topic,workbook_as_of_label,intended_use,url,workbook_source_posture,evidence_status,retrieved_at,raw_sha256
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D4,FY26 consolidated / segments,FY26,"Revenue, EBITDA, capex, balance-sheet baseline",https://www.ril.com/ar2025-26/financial-performance-and-review.html,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D5,FY26 segment EBITDA,FY26,"O2C, Oil & Gas, Digital, Retail, Others",https://www.ril.com/sites/default/files/2026-04/FY2025-26_RIL_Analyst_Meeting.pdf,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D6,Jio FY26,FY26,Revenue / EBITDA / margin baseline,https://www.ril.com/investors/events-presentations,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D7,Retail ownership,31-Mar-2026,RIL owns 83.56%,https://www.ril.com/sites/default/files/2026-05/Reliance_Retail_Ventures_Limited.pdf,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D8,Jio ownership,FY26,RIL owns 66.43%,https://www.ril.com/sites/default/files/reports/BRSR202526.pdf,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D9,Media ownership,FY26,JioStar 63.16%,https://www.ril.com/sites/default/files/reports/BRSR202526.pdf,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D10,Shares outstanding,31-Mar-2026,"1,353.247 crore shares",https://www.ril.com/ar2025-26/pdf/07_RIL_IAR_2025-26_Consolidated_22-05-26.pdf,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D11,Net debt,31-Mar-2026,"₹124,717 crore",https://www.ril.com/ar2025-26/financial-performance-and-review.html,reported,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D12,Current price,25-Sep-2026,"₹1,219.30",https://www.investing.com/equities/reliance-industries-historical-data,market data,URL_RECOVERED_UNFETCHED,,
+Model/Reliance_SOTP_DCF_Bands.xlsx#Sources!D13,Monthly price history,Nov-2024 to Sep-2026,Seed history for band calculation,https://www.digrin.com/stocks/detail/RELIANCE.NS/price,market data,URL_RECOVERED_UNFETCHED,,
