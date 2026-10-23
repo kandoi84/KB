@@ -58,6 +58,15 @@ data gaps. Their existence does not establish current source readiness.
 
 ## Continue here
 
+On 24 October, the user expanded the goal to fundamental anchors, technical
+buy/sell support and a recommendation portfolio seeking to outperform Nifty.
+The confirmed horizon is 1–3 years with monthly reviews. The
+[proposed system design](../../docs/superpowers/specs/2026-10-24-fundamental-technical-portfolio-design.md)
+defines separate valuation, timing and portfolio decisions, proposed risk limits,
+and cost-aware benchmark/ablation tests. It is independently reviewed but awaits
+user design/mandate approval. No technical engine or portfolio is implemented,
+and no outperformance or new stock recommendation is claimed.
+
 The [public-source catalog](research/PUBLIC_SOURCE_CATALOG.md) routes company
 filings, Value Research, ET and Screener to different research needs. The
 [incremental workflow](research/INCREMENTAL_RESEARCH.md) reuses existing
