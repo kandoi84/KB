@@ -1,0 +1,21 @@
+{
+  "observation_id": "nifty50-official-2026-10-23",
+  "url": "https://www.niftyindices.com/IndexConstituent/ind_nifty50list.csv",
+  "observed_at": "2026-10-23T15:05:41+05:30",
+  "retrieved_at": "2026-10-23T15:05:41+05:30",
+  "source_document_date": null,
+  "membership_effective_date": null,
+  "raw_sha256": "f5ba4027d935ae72879d5c24bbebf0e8439ec8ed504ffdf4175fde69206244b3",
+  "official_row_count": 50,
+  "existing_candidate_count": 50,
+  "matched_symbol_count": 50,
+  "candidate_only_symbols": [],
+  "official_only_symbols": [],
+  "outcome": "SYMBOL_SETS_MATCH",
+  "scope": "Current downloaded set observed at retrieval; not historical effective membership or registered security identity",
+  "terms_url": "https://www.niftyindices.com/terms-of-use",
+  "retention_rights": "NOT_REVIEWED_FOR_REDISTRIBUTION_OR_AUTOMATED_COLLECTION",
+  "raw_file_archived_in_kb": false,
+  "catalog_identity_registered": false,
+  "research_publication_allowed": false
+}

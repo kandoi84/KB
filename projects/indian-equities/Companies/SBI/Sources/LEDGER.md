@@ -37,3 +37,11 @@ permitted original filings for the book-value bridge and shares. Apply only
 the resulting changes using the
 [incremental workflow](../../../research/INCREMENTAL_RESEARCH.md). The dated
 SBI valuation and thesis remain unchanged until the evidence supports a revision.
+
+## 23 October 2026 — homepage route observation
+
+Request: [https://sbi.bank.in/](https://sbi.bank.in/); observed `2026-10-23T09:37:18+00:00`.
+Outcome: `HOMEPAGE_REACHABLE`; HTTP status: `200`.
+Selected discovery link: [Investor Relations](https://sbi.bank.in/web/investor-relations/investor-relations); linked from the fetched homepage, not yet retrieved.
+No financial values were extracted. Access is not rights approval or issuer-identity review.
+See the [route register](../../../research/PRIMARY_SOURCE_ROUTES_2026-10-23.csv).

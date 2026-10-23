@@ -40,7 +40,7 @@ Do not mix bank standalone profit with consolidated equity, different NIM
 denominators, split-adjusted prices or different share counts without a bridge.
 Do not treat an aggregator's rating or news headline as a reported company fact.
 
-## Connectivity observations
+## Connectivity and reuse observations
 
 On 23 October, direct checks to Value Research, ET's stock-quotes landing page,
 HDFC Bank IR and ICICI Bank IR failed at the configured proxy. Curl confirmed
@@ -54,7 +54,49 @@ the listed checks are candidate routes, not successfully retrieved sources.
 Rights, login requirements, exact document URLs and field coverage remain
 unverified. No fresh financial claim was created from these access checks.
 
-Once network settings are applied, first inspect the selected site's terms
-and a single relevant page. Record whether permitted manual reading, an export,
-RSS or a documented API is the suitable route. Prefer an official export or
-feed when supported; automated harvesting is not the default.
+In the subsequent Nifty coverage task on the same date, Screener, Value Research
+and ET returned successful pages. This supersedes their earlier connectivity
+failures, but does not prove that every endpoint or issuer source is reachable.
+The official Nifty constituent CSV still failed at the proxy. See the
+[dated discovery register](NIFTY50_COVERAGE.md); no official membership approval
+or bulk financial-data acquisition was inferred from that secondary observation.
+
+[Screener's terms](https://www.screener.in/guides/terms/), read on 23 October,
+limit the service license to personal, non-commercial transitory viewing and
+restrict copying/mirroring. Its robots file is not a replacement license.
+Use it for permitted viewing and document discovery; do not import its tables
+or assume a supported export is licensed for KB storage.
+
+[ET's terms](https://economictimes.indiatimes.com/terms-conditions), also read
+on 23 October, restrict aggregation/scraping/recreation/redistribution and
+systematic database building. Use links and permitted personal reading; no
+full-page archive, price feed, financial-table mirror or article corpus is
+introduced by this task. The one-time constituent observation routes research
+and still needs an official source; it is not an ET data-licensing agreement.
+Value Research's landing page was reachable, but its data/export reuse terms
+have not been confirmed. Do not activate a collection adapter on that basis.
+
+An ICICI Bank request without following redirects confirmed HTTP 301 from
+`www.icicibank.com` to `www.icici.bank.in`. Following it failed at the proxy;
+the destination hostname was added to the draft. Candidate company homepage
+domains for the Nifty coverage queue were also saved. Those are routing seeds,
+not confirmation of page accessibility, ownership or retention rights.
+
+After the cloud reconnected, the official Nifty CSV and terms page both
+returned HTTP 200. Its 50 symbols match the coverage register; see the
+[observation receipt](NIFTY50_OFFICIAL_OBSERVATION_2026-10-23.json).
+The source does not supply a membership-effective date. Its terms restrict
+copying and automated collection; no recurring index collector or redistributed
+raw constituent/ISIN file was created.
+
+The [50-company route check](PRIMARY_SOURCE_ROUTES_2026-10-23.csv) subsequently
+found 28 reachable homepages and selected investor links on 21 of them. Other
+responses included redirects, 403/406/503 and one proxy error. These are access
+observations, not retained financial datasets, reviewed ownership or permission
+to scrape. Read each ledger's dated status before retrying; old access failures
+must not be treated as permanent and an HTTP 200 is not a data-quality check.
+
+For each route, record whether manual reading, an authorized export, RSS or a
+documented API is suitable. Prefer an official export/feed when supported;
+automated harvesting is not the default. Obtain provider permission where
+retention or systematic reuse requires it, rather than rebuilding the provider.

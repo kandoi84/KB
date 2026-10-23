@@ -16,6 +16,7 @@ Reliance company notes and model are in `Companies/Reliance/`. Preliminary HDFC 
 The original KB shell and its journals are preserved in `projects/research-journal/`.
 
 Current work: [company coverage and gaps](projects/indian-equities/PROGRESS.md),
+[Nifty 50 by sector](projects/indian-equities/research/NIFTY50_COVERAGE.md),
 [public-source reuse](projects/indian-equities/research/PUBLIC_SOURCE_CATALOG.md),
 and [incremental research workflow](projects/indian-equities/research/INCREMENTAL_RESEARCH.md).
 The source copy in `~/code/codex-work/2026-09-25/kb/outputs/KB/` remains for provenance; this repository is the master copy for future work. The original Indian Equities scaffold is archived in `~/code/codex-work/archive/indian-equities-kb-scaffold/`.

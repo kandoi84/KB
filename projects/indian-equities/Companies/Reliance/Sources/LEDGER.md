@@ -39,3 +39,11 @@ for prepared tables/news discovery and the
 Recovered URLs are not registered source versions and do not close evidence,
 rights, freshness or publication gaps. Network access to these documents has
 not been established in this update.
+
+## 23 October 2026 — homepage route observation
+
+Request: [https://www.ril.com/](https://www.ril.com/); observed `2026-10-23T09:37:15+00:00`.
+Outcome: `HOMEPAGE_REACHABLE`; HTTP status: `200`.
+Selected discovery link: [Investor Relations](https://www.ril.com/investors/investor-relations); linked from the fetched homepage, not yet retrieved.
+No financial values were extracted. Access is not rights approval or issuer-identity review.
+See the [route register](../../../research/PRIMARY_SOURCE_ROUTES_2026-10-23.csv).

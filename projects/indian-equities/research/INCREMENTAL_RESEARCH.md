@@ -3,6 +3,12 @@
 Use the existing source register and evidence workflow. Do not rebuild tables,
 download every historical document or rewrite the thesis at each refresh.
 
+The [Nifty 50 coverage register](NIFTY50_COVERAGE.md) now links all 50 observed
+companies, now matched to the observed official list, through 13 sector desks. Keep one canonical company folder
+and shared sector definitions; do not duplicate reports into sector folders.
+The observation is not proof of historical effective membership; resolve those
+dates and reviewed security identity before strict replay or backtests.
+
 ## Start with the saved state
 
 Read `COMPANY.md`, `Thesis.md`, the latest earnings/valuation note and the

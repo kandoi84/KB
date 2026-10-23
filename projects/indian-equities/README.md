@@ -10,6 +10,11 @@ Do not store secrets or large licensed raw datasets in Git.
 
 ## Project map
 
+- [Nifty 50 sector coverage](research/NIFTY50_COVERAGE.md): 50 symbols matched
+  against the observed official constituent download, in 13 research sectors; four existing
+  research folders and 46 intake-only profiles.
+- `config/universes/nifty50_2026-10-23.csv`: dated discovery register and canonical
+  company paths. Sector desks under `kb/sectors/` link to those paths.
 - `MASTER.md`: research and valuation rules.
 - `Framework/`, `GOVERNANCE/`, `Agents/`, `config/`, `schemas/`, `trust/`:
   specifications, policies, agent contracts, and evaluation definitions.

@@ -29,3 +29,12 @@ For each actual document retain URL, title, source date, actual observation
 and retrieval timestamps, raw hash, scope, rights basis and page citations.
 Use `record-source` only once the actual bytes and required metadata exist.
 Then register reviewed identity and metrics through the guarded runtime.
+
+## 23 October 2026 — homepage route observation
+
+Request: [https://www.icicibank.com/](https://www.icicibank.com/); observed `2026-10-23T09:37:17+00:00`.
+Outcome: `REDIRECT_NOT_FOLLOWED`; HTTP status: `301`.
+Observed redirect: [https://www.icici.bank.in/](https://www.icici.bank.in/); not followed in this pass.
+No investor page was selected from this response; this does not establish that none exists.
+No financial values were extracted. Access is not rights approval or issuer-identity review.
+See the [route register](../../../research/PRIMARY_SOURCE_ROUTES_2026-10-23.csv).
