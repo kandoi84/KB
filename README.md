@@ -1,5 +1,9 @@
 # KB
 
+**Start here: [Your KB dashboard](projects/indian-equities/DASHBOARD.md)** — what
+exists, what is missing, and links to company and sector research. Read-only
+snapshot; no live prices or portfolio recommendations.
+
 Master repository for Indian Equities research: `~/code/kb`.
 
 - [Indian Equities project](projects/indian-equities/README.md)

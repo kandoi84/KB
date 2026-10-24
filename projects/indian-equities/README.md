@@ -1,5 +1,8 @@
 # Indian Equities KB
 
+[Open your KB dashboard](DASHBOARD.md) for a plain-language overview of actual
+coverage, evidence readiness and implemented versus planned capabilities.
+
 Three-layer storage model:
 
 - Local Mac: working copy
