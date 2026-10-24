@@ -45,3 +45,7 @@ Outcome: `HOMEPAGE_REACHABLE`; HTTP status: `200`.
 Selected discovery link: [Investor Relations](https://sbi.bank.in/web/investor-relations/investor-relations); linked from the fetched homepage, not yet retrieved.
 No financial values were extracted. Access is not rights approval or issuer-identity review.
 See the [route register](../../../research/PRIMARY_SOURCE_ROUTES_2026-10-23.csv).
+
+## 24 October 2026 — actual document acquisition
+
+The real Q1FY27 presentation is registered and 22 comparative observations are extracted; see [evidence update](../Earnings/Q1FY27_EVIDENCE_UPDATE_2026-10-24.md). Definitions, rights and claim review remain pending.

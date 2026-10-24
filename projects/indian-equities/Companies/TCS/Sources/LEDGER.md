@@ -23,3 +23,7 @@ Outcome: `HOMEPAGE_REACHABLE`; HTTP status: `200`.
 Selected discovery link: [Discover more](https://www.tcs.com/investor-relations); linked from the fetched homepage, not yet retrieved.
 No financial values were extracted. Access is not rights approval or issuer-identity review.
 See the [route register](../../../research/PRIMARY_SOURCE_ROUTES_2026-10-23.csv).
+
+## 24 October 2026 — actual document acquisition
+
+The official Q2FY27 data workbook returned HTTP 200 and is preserved locally with its hash. See [acquisition receipt](Q2FY27_ACQUISITION.json). Source-document date and reuse review are unresolved, so it is not registered or used to publish financial claims.

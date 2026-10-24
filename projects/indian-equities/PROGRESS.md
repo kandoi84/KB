@@ -58,6 +58,13 @@ data gaps. Their existence does not establish current source readiness.
 
 ## Continue here
 
+**24 October data increment:** the [data-quality goal](research/DATA_QUALITY_GOAL.md)
+now prioritizes evidence over scaffolding. One actual SBI presentation has been
+registered; [22 comparative observations and a cited earnings update](Companies/SBI/Earnings/Q1FY27_EVIDENCE_UPDATE_2026-10-24.md)
+are saved. One actual TCS workbook is acquired but unregistered pending its
+document date and review. This supersedes the earlier zero-source snapshot;
+no reviewed recommendation, fair-value revision or performance edge is claimed.
+
 On 24 October, the user expanded the goal to fundamental anchors, technical
 buy/sell support and a recommendation portfolio seeking to outperform Nifty.
 The confirmed horizon is 1–3 years with monthly reviews. The

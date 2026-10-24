@@ -12,7 +12,7 @@ It can be shown in GPT as a chat overview; it does not refresh automatically.
 | Research sectors | 13 | Shared sector desks link to canonical company folders |
 | Companies with existing research | 4 | Dated pilots/preliminary work, not four validated current recommendations |
 | Intake-only companies | 46 | Company-specific questions and source routes; financial analysis unfinished |
-| Registered source versions | 0 | No reviewed evidence chain can be inferred from the folder count |
+| Registered source versions | 1 | No reviewed evidence chain can be inferred from the folder count |
 | Reachable company homepages | 28 / 50 | Access observations, not verified financial documents |
 | Investor links identified | 21 | Discovery links; not proof their reports were acquired/reviewed |
 
@@ -59,7 +59,7 @@ are historical work, not current values or trade signals.
 |---|---|---|
 | Coverage organization | Available | 50-company register, sector desks and source routes |
 | Fundamental research | Partial | Four dated research folders; most financial inputs/models still missing |
-| Source integrity/evidence workflow | Code exists; real research not promoted | CLI and tests exist; this snapshot has zero registered source versions |
+| Source integrity/evidence workflow | Code exists; real research not promoted | CLI and tests exist; one SBI presentation is registered; claim review remains pending |
 | Technical analysis | Proposed | Trend, relative-strength, volatility and volume design; no implemented signals |
 | Buy/add/hold/reduce/exit decisions | Proposed | Decision policy draft; no active recommendation engine |
 | Portfolio construction | Proposed | Constraints and paper-portfolio design; no holdings or weights recommended |
@@ -89,3 +89,10 @@ is proposed and independently reviewed, not implemented or user-approved.
 To refresh this dashboard, inspect the registers, source state and implementation
 before updating it. Do not increment readiness simply because more files exist.
 No raw credentials, account information or invented market values belong here.
+
+## 24 October — evidence progress
+
+SBI: one actual presentation registered and 22 comparative metric observations
+extracted with page/version/hash references. TCS: one actual workbook acquired,
+with date confirmation pending before registration. No validated recommendation
+or portfolio is implied. See the [SBI evidence update](Companies/SBI/Earnings/Q1FY27_EVIDENCE_UPDATE_2026-10-24.md).

@@ -1,0 +1,11 @@
+{
+  "entity": "TCS",
+  "url": "https://www.tcs.com/content/dam/tcs/pdf/discover-tcs/investor-relations/tcs-data-sheet/TCS-Data-Sheet-Q2FY27.xlsx",
+  "retrieved_at": "2026-10-24T16:34:11+00:00",
+  "source_document_date": null,
+  "raw_sha256": "0817bf86f26bdab3ddcf7e6b237e9e24a12501605937e9e8d8c1d626e0e868df",
+  "local_path": "data/raw/acquired/TCS_Q2FY27_0817bf86f26bdab3ddcf7e6b237e9e24a12501605937e9e8d8c1d626e0e868df.xlsx",
+  "status": "ACQUIRED_UNREGISTERED_SOURCE_DATE_PENDING",
+  "rights_review": "NOT_COMPLETED",
+  "publication_allowed": false
+}

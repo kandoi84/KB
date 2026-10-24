@@ -1,0 +1,11 @@
+{
+  "entity": "SBI",
+  "observed_at": "2026-10-24T16:34:11+00:00",
+  "raw_sha256": "ff976a31be05a774f502c841c475a3c647737554953bb8d0b75854a464716d4c",
+  "retrieved_at": "2026-10-24T16:34:11+00:00",
+  "source_date": "2026-08-07",
+  "source_id": "SBI_Q1FY27_ANALYST_PRESENTATION",
+  "source_kind": "COMPANY_PRESENTATION",
+  "url": "https://sbi.bank.in/documents/17836/1275616/07082026_SBI%2BAnalyst%2BPresentation%2BQ1FY27.pdf/6e4ca530-1666-574e-22fb-f9e19d553ef5?t=1786091443352",
+  "version_id": "f320310fd22b11e93145ff39d4ffb4c80c8b3d410a1da5064c8d4817a67cfa1f"
+}
